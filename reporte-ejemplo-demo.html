@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Procesos de Equipo · TeamCook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --purple:#7B5BA6; --deep:#5d4682; --brand2:#5d4682; --gold:#F2D49C; --ink:#2d2540; --muted:#8a7fa3; --text:#4c4360;
+    --line:#e6e0f0; --line2:#efeaf5; --bg:#f4f1fa; --pill:#ede4f7; --track:#f1edf7; --mid:#b9a4d6; --light:#d9d2e6;
+    --green:#1f7a4d; --green-bg:#e3f5ea; --red:#b8554d; --red-bg:#fdecea; --gold-ink:#7a5a12; --warn-bg:#fff8e8; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg);
+    color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--deep); }
+  button { font: inherit; cursor: pointer; }
+  .num { font-variant-numeric: tabular-nums; }
+  .hidden { display: none !important; }
+
+  /* ---------- Top bar ---------- */
+  .topbar { position: sticky; top: 0; z-index: 40; height: 64px; background: #fff; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 28px; gap: 16px; }
+  .tb-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  .tb-left img { height: 30px; width: auto; max-width: 200px; object-fit: contain; display: block; }
+  .tb-brand { font-size: 17px; font-weight: 800; letter-spacing: -.01em; color: var(--ink); white-space: nowrap; }
+  .tb-tc { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+  .tb-tc img { height: 20px; width: auto; display: block; }
+  .tb-sep { width: 1px; height: 26px; background: var(--line); }
+  .tb-title { font-size: 14px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+  .tb-meta { font-size: 11.5px; color: var(--muted); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tb-pill { display: inline-block; font-size: 11px; font-weight: 600; color: var(--deep); background: var(--pill);
+    padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+  .tb-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 12px; border-radius: 9px;
+    border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 12.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .btn:hover { background: #faf8fd; }
+  .btn.primary { border: 0; background: linear-gradient(135deg, var(--purple), var(--brand2)); color: #fff; padding: 0 14px; }
+  .btn.primary:hover { filter: brightness(1.05); }
+  .btn svg { width: 14px; height: 14px; }
+  .menu-wrap { position: relative; }
+  .menu { position: absolute; right: 0; top: 42px; background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(45,37,64,.16); min-width: 240px; padding: 6px; z-index: 50; }
+  .menu button { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; border: 0; background: none;
+    padding: 9px 10px; border-radius: 8px; font-size: 13px; color: var(--ink); }
+  .menu button:hover { background: var(--bg); }
+  .menu .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .menu button[disabled] { color: var(--muted); cursor: default; }
+
+  /* ---------- Layout ---------- */
+  .app { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 64px); }
+  .rail { background: #fff; border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 4px;
+    position: sticky; top: 64px; align-self: start; height: calc(100vh - 64px); overflow-y: auto; }
+  .rail-cap { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 0 10px 6px; }
+  .nav { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: none;
+    padding: 9px 10px; border-radius: 9px; color: var(--ink); font-size: 13px; font-weight: 500; }
+  .nav:hover { background: var(--bg); }
+  .nav.active { background: linear-gradient(135deg, var(--purple), var(--brand2)); color: #fff; font-weight: 600; }
+  .nav .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .nav .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav .flag { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+    background: var(--bg); padding: 2px 6px; border-radius: 20px; }
+  .nav.active .flag { color: #fff; background: rgba(255,255,255,.18); }
+  .nav.sub { padding: 6px 10px; font-size: 12.5px; border-radius: 7px; }
+  .nav.muted { color: var(--muted); }
+  .rail-sub { display: flex; flex-direction: column; gap: 2px; padding-left: 14px; }
+  .rail-card { margin-top: auto; background: var(--bg); border-radius: 10px; padding: 12px 12px; font-size: 11.5px; color: var(--text); line-height: 1.6; }
+  .rail-card .rc-cap { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .rail-card .rc-row { display: flex; justify-content: space-between; gap: 8px; }
+  .rail-card .rc-row strong { color: var(--ink); font-weight: 600; text-align: right; }
+  .rail-link { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+  .rail-link a { color: var(--muted); }
+  .content { min-width: 0; padding: 28px 32px 36px; }
+  .section { display: none; flex-direction: column; gap: 20px; max-width: 1180px; }
+  .section.active { display: flex; }
+
+  /* ---------- Blocks ---------- */
+  .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .sec-head h1 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+  .sec-head .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .card.grad { background: linear-gradient(135deg, var(--purple), var(--brand2)); color: #fff; border: 0; }
+  .card.grad .eyebrow { color: #fff; opacity: .8; }
+  .card.warn { background: var(--warn-bg); border-color: #f1e2b8; }
+  .card.warn .eyebrow { color: var(--gold-ink); }
+  .card.tension { border-left: 4px solid var(--gold-ink); }
+  .card-title { font-size: 13.5px; font-weight: 700; }
+  .card p, .prose p { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: 360px minmax(0, 1fr) 360px; gap: 16px; }
+  .row-prof { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 16px; }
+  .row-cmp { display: grid; grid-template-columns: 440px minmax(0, 1fr); gap: 16px; }
+  .kpi { gap: 6px; }
+  .kpi .k-cap { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .kpi .k-val { font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+  .kpi .k-val small { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+  .kpi .k-sub { font-size: 11.5px; color: var(--text); }
+  .tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .tag.good { color: var(--green); background: var(--green-bg); }
+  .tag.bad { color: var(--red); background: var(--red-bg); }
+  .tag.mid { color: var(--gold-ink); background: var(--gold); }
+  .tag.neutral { color: var(--deep); background: var(--pill); }
+  .scale { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #1f7a4d, #F2D49C 50%, #b8554d); margin-top: 6px; }
+  .scale i { position: absolute; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid var(--ink); transform: translateX(-50%); }
+  .bars { display: flex; flex-direction: column; gap: 8px; }
+  .bar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 64px; align-items: center; gap: 10px; font-size: 12px; }
+  .bar .bn { display: flex; align-items: center; gap: 7px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+  .bar .bn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .bar .bt { height: 9px; background: var(--track); border-radius: 5px; overflow: hidden; }
+  .bar .bt i { display: block; height: 100%; border-radius: 5px; }
+  .bar .bv { text-align: right; color: var(--text); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--deep); background: var(--bg); padding: 4px 9px; border-radius: 999px; }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .lvl { display: inline-block; min-width: 30px; padding: 2px 0; border-radius: 6px; font-weight: 800; font-size: 11px; text-align: center; background: var(--pill); color: var(--deep); }
+  .lvl.l4, .lvl.l5 { background: var(--purple); color: #fff; }
+  .lvl.l5 { background: #3f2d5c; }
+  .lvl.l2 { background: #f6f2fb; color: #8a7ca6; }
+  .lvl.l1, .lvl.l0 { background: #fbfafc; color: #b0a4c8; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--muted); justify-content: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend .ln { width: 14px; height: 3px; border-radius: 2px; }
+  .legend .ln.dash { height: 0; border-top: 2px dashed var(--mid); background: none; }
+  .note { font-size: 11px; color: var(--muted); line-height: 1.45; }
+  .radar-svg { width: 100%; height: auto; display: block; margin: 0 auto; }
+  .radar-mini { width: 84px; height: 84px; flex: none; }
+  .avatar { width: 52px; height: 52px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; flex-shrink: 0; }
+
+  /* Highlight cards (contribuciones destacadas) */
+  .hl { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line2); }
+  .hl:last-child { border-bottom: 0; padding-bottom: 0; }
+  .hl .avatar { width: 34px; height: 34px; font-size: 12px; }
+  .hl .hl-name { font-size: 12.5px; font-weight: 700; }
+  .hl .hl-txt { font-size: 12px; color: var(--text); line-height: 1.45; }
+  .hl .chips { margin-top: 5px; }
+
+  /* Profile cards */
+  .pcard { border-top: 4px solid var(--purple); gap: 12px; }
+  .pcard.nos { border-top-color: var(--light); border-style: dashed; border-top-style: solid; }
+  .pcard .ph { display: flex; align-items: center; gap: 10px; }
+  .pcard .ph .avatar { width: 38px; height: 38px; font-size: 13px; }
+  .pcard .pn { font-size: 14px; font-weight: 700; line-height: 1.2; }
+  .pcard .pr { font-size: 11.5px; color: var(--muted); }
+  .pcard .pb { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 10px; align-items: center; }
+  .pcard .cb { display: grid; grid-template-columns: 76px minmax(0, 1fr) 26px; gap: 6px; align-items: center; font-size: 10.5px; color: var(--text); }
+  .pcard .cb > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pcard .cb .bt { height: 6px; background: var(--track); border-radius: 3px; overflow: hidden; }
+  .pcard .cb .bt i { display: block; height: 100%; border-radius: 3px; }
+  .pcard .cb b { font-weight: 800; text-align: right; white-space: nowrap; }
+  .pcard .pf { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line2); padding-top: 10px; }
+  .pcard .pf b { color: var(--ink); font-weight: 700; }
+  .pcard .pa { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pcard .pa .lnk { border: 0; background: none; color: var(--purple); font-size: 12.5px; font-weight: 700; padding: 0; }
+  .pcard .pa .mini { height: 30px; padding: 0 10px; font-size: 11.5px; }
+
+  /* Rec cards */
+  .rec .rt { font-size: 13.5px; font-weight: 700; }
+  .rec .rx { font-size: 12.5px; line-height: 1.55; color: var(--text); }
+  .card.grad .rx { color: #fff; opacity: .94; }
+  .bl { display: flex; flex-direction: column; gap: 10px; }
+  .bl .bi { display: flex; gap: 10px; font-size: 12.5px; line-height: 1.5; color: var(--text); }
+  .bl .bi i { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+  .bl .bi b { color: var(--ink); }
+
+  /* Profile view */
+  .prof-head { border-top: 4px solid var(--purple); display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px; padding: 22px 24px; }
+  .prof-head .lect { font-size: 13px; line-height: 1.6; color: var(--text); }
+  .prof-head .lect b { color: var(--ink); font-weight: 700; }
+  .prof-head .ph { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .prof-head h1 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .prof-head .role { font-size: 13px; color: var(--muted); }
+  .prof-head .role strong { color: var(--ink); }
+  .prof-head .pk { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-content: start; }
+  .prof-head .pk div { background: var(--bg); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+  .prof-head .pk span { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .prof-head .pk b { font-size: 20px; font-weight: 800; line-height: 1; white-space: nowrap; }
+  .prof-head .pk b small { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .prof-head .pk em { font-style: normal; font-size: 11px; color: var(--text); }
+  .crumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .crumb b { color: var(--ink); font-weight: 600; }
+  .crumb .sp { flex: 1; }
+  .crumb button { border: 0; background: none; color: var(--deep); font-weight: 600; font-size: 12px; padding: 0; }
+  .comp-row { display: grid; grid-template-columns: 150px 44px minmax(0, 1fr); gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; }
+  .comp-row:nth-child(odd) { background: #f9f7fc; }
+  .comp-row .cn { font-size: 12.5px; font-weight: 700; }
+  .comp-row .cx { font-size: 12px; line-height: 1.45; color: var(--text); }
+  .comp-row .cx .ln { font-weight: 700; color: var(--ink); }
+  .comp-row .cx .sc { color: var(--muted); font-size: 11px; white-space: nowrap; }
+  .comp-row .cx em { color: var(--muted); }
+  .prose { display: flex; flex-direction: column; gap: 10px; }
+  .prose h2, .prose h3, .prose h4 { color: var(--deep); font-weight: 700; margin-top: 8px; }
+  .prose h2 { font-size: 18px; } .prose h3 { font-size: 15px; } .prose h4 { font-size: 13.5px; }
+  .prose ul, .prose ol { margin-left: 20px; font-size: 13.5px; color: var(--text); line-height: 1.6; }
+  .prose li { margin-bottom: 4px; }
+  .prose strong { color: var(--ink); }
+  .prose blockquote { border-left: 3px solid var(--purple); background: #f9f7fc; padding: 9px 12px; font-size: 13px; line-height: 1.5; color: var(--text); font-style: italic; border-radius: 0 8px 8px 0; }
+  .prose blockquote em { font-style: normal; font-size: 11px; color: var(--muted); }
+  .prose .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .prose table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .prose th { background: #f7f3fd; color: var(--deep); text-align: left; padding: 9px 12px; font-weight: 700; white-space: nowrap; }
+  .prose td { padding: 8px 12px; border-top: 1px solid var(--line2); vertical-align: top; color: var(--text); }
+  .prose hr { border: 0; border-top: 1px solid var(--line); }
+  .prose code { background: #f3f0f9; padding: 2px 6px; border-radius: 4px; font-size: .9em; }
+  .prose pre { background: #f3f0f9; padding: 12px 14px; border-radius: 10px; overflow-x: auto; }
+  .fac-notes { white-space: normal; font-size: 14px; line-height: 1.7; color: var(--text); }
+
+  /* Compare */
+  .sel { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  .sel button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--line); background: #fff; color: var(--ink); }
+  .sel button .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .sel button.on { color: #fff; border-color: transparent; }
+  .sel button.on .dot { background: #fff !important; }
+  table.cmp { width: 100%; border-collapse: collapse; }
+  table.cmp th, table.cmp td { padding: 9px 10px; font-size: 12.5px; text-align: center; border-bottom: 1px solid var(--line2); }
+  table.cmp th { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  table.cmp td:first-child, table.cmp th:first-child { text-align: left; font-weight: 600; }
+  table.cmp td.avg { color: var(--muted); }
+  .cmp-c1 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .cmp-c1 .cc { display: flex; flex-direction: column; gap: 6px; }
+  .cmp-c1 .k-cap { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .cmp-c1 .bar { grid-template-columns: 56px minmax(0, 1fr) 36px; font-size: 11px; }
+
+  .footer { font-size: 11px; color: var(--muted); line-height: 1.45; border-top: 1px solid var(--line); padding-top: 12px; max-width: 1180px; margin-top: 20px; }
+  .footer .ft-tc { height: 18px; width: auto; display: block; margin-bottom: 8px; }
+  .pc-brand { font-size: 22px; font-weight: 800; letter-spacing: -.01em; color: var(--ink); }
+  .pc-powered { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .pc-powered img { height: 22px; width: auto; }
+  .strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .strip .si { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+  .strip .si b { color: var(--ink); font-weight: 700; }
+  .strip .si.type { background: var(--pill); border-color: transparent; color: var(--deep); font-weight: 600; }
+  .about { gap: 6px; }
+  .about p { font-size: 12.5px; }
+  table.mtx { width: 100%; border-collapse: collapse; }
+  table.mtx th, table.mtx td { padding: 8px 8px; font-size: 12px; text-align: center; border-bottom: 1px solid var(--line2); vertical-align: middle; }
+  table.mtx th { font-size: 11px; font-weight: 700; letter-spacing: .03em; color: var(--muted); }
+  table.mtx th .nm { display: inline-flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 11.5px; }
+  table.mtx th .nm .dot { width: 8px; height: 8px; border-radius: 50%; }
+  table.mtx td:first-child, table.mtx th:first-child { text-align: left; font-weight: 600; color: var(--ink); }
+  table.mtx td .sc { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  table.mtx td.avg { color: var(--muted); }
+  .print-cover, .print-pcover, .print-pclose { display: none; }
+  .empty { font-size: 13px; color: var(--muted); }
+
+  /* Mobile */
+  .rail-toggle { display: none; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: #fff; font-size: 18px; line-height: 1; }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(45,37,64,.35); z-index: 45; }
+  @media (max-width: 1200px) {
+    .row-3 { grid-template-columns: 1fr 1fr; }
+    .row-3 > :last-child { grid-column: 1 / -1; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .row-prof, .row-cmp { grid-template-columns: 1fr; }
+    .cmp-c1 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .topbar { padding: 0 16px; }
+    .tb-pill, .tb-title { display: none; }
+    .rail-toggle { display: inline-flex; align-items: center; justify-content: center; }
+    .app { grid-template-columns: 1fr; }
+    .rail { position: fixed; left: 0; top: 64px; width: 262px; z-index: 46; transform: translateX(-100%); transition: transform .22s ease; box-shadow: 0 0 40px rgba(0,0,0,.25); }
+    .rail.open { transform: none; }
+    .overlay.open { display: block; }
+    .content { padding: 18px 16px 28px; }
+    .grid-2, .grid-3, .grid-4, .row-3, .prof-head, .cmp-c1 { grid-template-columns: 1fr; }
+    .row-3 > :last-child { grid-column: auto; }
+    .sec-head h1 { font-size: 21px; }
+    .prof-head h1 { font-size: 22px; }
+    .comp-row { grid-template-columns: 1fr; gap: 4px; }
+    .bar { grid-template-columns: 100px minmax(0, 1fr) 56px; }
+    .tb-right .btn .bt-tx { display: none; }
+    .tb-right .btn { padding: 0 10px; }
+    .tb-tc { display: none; }
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    @page { size: A4; margin: 12mm 12mm 16mm; }
+    html, body { background: #fff; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .topbar, .rail, .overlay, .rail-toggle, .no-print, .pcard .pa, .crumb button, .crumb .sp { display: none !important; }
+    .app { display: block; }
+    .content { padding: 0; }
+    .section { display: flex !important; max-width: 100%; }
+    .section, .print-cover + .section { page-break-before: always; break-before: page; }
+    body.print-one .section { display: none !important; }
+    body.print-one .section.print-target { display: flex !important; break-before: auto; }
+    .print-cover { display: flex; flex-direction: column; gap: 18px; min-height: 60vh; justify-content: center; }
+    body.print-one .print-cover, body.print-one .about-card { display: none !important; }
+    /* PDF por persona: cabecera con los datos de la sesión + perfil + cierre metodológico (las advertencias viajan con el PDF). */
+    body.print-one .print-pcover { display: flex; flex-direction: column; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+    body.print-one .print-pcover img { height: 34px; width: auto; align-self: flex-start; }
+    body.print-one .print-pcover h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    body.print-one .print-pcover .pc-sub { font-size: 14px; color: var(--text); }
+    body.print-one .print-pcover .pc-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px; color: var(--text); }
+    body.print-one .print-pcover .pc-meta span { color: var(--muted); margin-right: 5px; }
+    body.print-one .print-pclose { display: flex; flex-direction: column; gap: 14px; page-break-before: always; break-before: page; }
+    body.print-one .print-pclose h2 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+    body:not(.print-one) .about-card { display: none !important; }
+    .print-cover img { height: 44px; width: auto; max-width: 260px; object-fit: contain; align-self: flex-start; }
+    .print-cover .pc-powered img, .print-pclose .pc-powered img { height: 22px; max-width: none; }
+    .print-cover .pc-powered { margin-top: 6px; }
+    .print-cover h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .print-cover .pc-sub { font-size: 16px; color: var(--text); }
+    .print-cover .pc-meta { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; font-size: 13px; color: var(--text); }
+    .print-cover .pc-meta span { color: var(--muted); }
+    .print-cover .pc-about { font-size: 12.5px; line-height: 1.6; color: var(--text); border-top: 1px solid var(--line); padding-top: 14px; }
+    .card, .kpi, .pcard, .comp-row, blockquote, tr { page-break-inside: avoid; break-inside: avoid; }
+    .card.prose, .prose { page-break-inside: auto; break-inside: auto; }
+    .prose p, .prose li { page-break-inside: avoid; break-inside: avoid; }
+    .sec-head, .prose h2, .prose h3, .prose h4, .card-title, .eyebrow { page-break-after: avoid; break-after: avoid; }
+    .prose .table-wrap, .cmp-wrap { overflow: visible !important; border: 0; }
+    .prose table { font-size: 10.5px; }
+    .prose th, .prose td { padding: 6px 8px; white-space: normal; word-break: normal; }
+    .pgrid { grid-template-columns: 1fr 1fr !important; }
+    .row-3 { grid-template-columns: 1fr 1fr; }
+    .row-3 > :last-child { grid-column: 1 / -1; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .row-prof { grid-template-columns: 300px minmax(0, 1fr); }
+    .row-cmp { grid-template-columns: 320px minmax(0, 1fr); }
+    .sel { display: none; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="tb-left">
+      <button class="rail-toggle" id="rail-toggle" type="button" aria-label="Menú">☰</button>
+      <img id="tb-logo" alt="TeamCook" src="">
+      <div class="tb-sep"></div>
+      <div style="min-width:0">
+        <div class="tb-title" id="tb-title"></div>
+        <div class="tb-meta" id="tb-meta"></div>
+      </div>
+      <span class="tb-pill" id="tb-pill"></span>
+    </div>
+    <div class="tb-right">
+      <span class="tb-tc hidden" id="tb-tc"><span>Powered by</span><img alt="TeamCook" src=""></span>
+      <a class="btn" id="btn-excel" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13l6 6M15 13l-6 6"/></svg>
+        <span class="bt-tx">Excel</span>
+      </a>
+      <button class="btn" id="btn-pdf-all" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M8 15h8v6H8z"/></svg>
+        <span class="bt-tx" id="btn-pdf-all-tx">PDF completo</span>
+      </button>
+      <div class="menu-wrap">
+        <button class="btn primary" id="btn-pdf-one" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span class="bt-tx" id="btn-pdf-one-tx">PDF por persona</span> ▾
+        </button>
+        <div class="menu hidden" id="pdf-menu"></div>
+      </div>
+    </div>
+  </header>
+  <div class="overlay" id="overlay"></div>
+  <div class="app">
+    <aside class="rail" id="rail">
+      <div class="rail-cap" id="rail-cap">Secciones</div>
+      <div id="rail-nav" style="display:flex;flex-direction:column;gap:4px"></div>
+      <div class="rail-card" id="rail-card"></div>
+      <div class="rail-link" id="rail-link"></div>
+    </aside>
+    <main class="content" id="content"></main>
+  </div>
+
+  <script id="REPORT_DATA" type="application/json">{"logo":"https://jbzvghsxzbcolmdfiswr.supabase.co/storage/v1/object/public/assets/TC%20-%20LOGO%20NUEVO%20HORIZONTAL%20FONDO%20TRANSPARENTE%20HIGH%20(3).png","empresa":"Empresa Demo","equipo":"Assessment de selección (demo)","fecha":"2026-09-23T17:05:00.404006+00:00","marca":{"nombre":null,"deep":"#897a57","logoUrl":"/marca/30/logo?v=f6b0023d04e6","primario":"#b09c70","secundario":"#f18e04"},"markdown":"# Reporte de Procesos de Equipo — TeamCook\n\n- **Empresa:** Empresa Demo\n- **Equipo:** Assessment de selección (demo)\n- **Fecha de la sesión:** 22 de septiembre de 2026\n- **Duración:** ~57 minutos\n- **Participantes:** 6 (5 con perfil completo · 1 con evidencia insuficiente)\n- **Modalidad:** Remota\n- **Tipo de assessment:** Assessment de selección — candidatos externos\n\n---\n\n## Sobre este reporte\n\nLectura observacional de los procesos de equipo durante una sesión de TeamCook con un grupo de candidatos externos, generada con IA sobre el transcript, en el marco de un proceso de selección. Combina dos capas: (1) métricas objetivas de interacción computadas por conteo —fiables porque no dependen del juicio del modelo— y (2) seis competencias de procesos de equipo inferidas de la evidencia verbal, ancladas en literatura de teamwork. NO es un test psicométrico validado ni predice desempeño futuro: describe qué señales de proceso de equipo mostró cada candidato en esta sesión colaborativa bajo presión. Es un insumo complementario del proceso de selección, debe combinarse con entrevistas y otros instrumentos, y ninguna candidatura debe aceptarse ni descartarse únicamente en base a este reporte.\n\n---\n\n## Resumen ejecutivo\n\n**Cómo funcionó el equipo:** El grupo mostró un reparto de participación equitativo (Gini 0.22), con tres candidatos acumulando la mayor parte de los turnos y dos con participación notablemente menor. La escucha mutua fue funcional —uptake presente pero no sistemático—, con la coordinación apoyada principalmente en dos o tres nodos activos.\n\n**Contribuciones que se destacaron:**\n- **Diego Ferrari** sostuvo la función de estructuración a lo largo de toda la sesión: propuso roles, planteó ajustes estratégicos en los debriefs y conectó la experiencia con aprendizajes transferibles al trabajo real.\n- **Lucas Medina** aportó dirección táctica durante el juego activo, priorizó comandas con criterio y nombró con precisión los errores de proceso en los debriefs.\n- **Andrés Vidal** contribuyó a la coordinación operativa cerrando lazos de comunicación con frecuencia y aportando reflexión específica sobre comunicación y adaptabilidad en el debrief.\n\n**Principal tensión del sistema:** La coordinación dependió de pocos nodos; cuando uno de ellos (Martín Suárez) se desconectó por un imprevisto externo, el flujo se resintió. La distribución de la función de dirección fue desigual, con varios candidatos en rol predominantemente reactivo.\n\n**Lectura para el proceso:** Esta sesión aporta evidencia conductual observable sobre cómo cada candidato contribuye a los procesos de equipo bajo presión real; debe combinarse con entrevistas y otras instancias para una lectura completa de cada candidatura.\n\n---\n\n## Inteligencia Colectiva del equipo\n\n**Distribución de participación:**\n\n| Participante | Turnos de habla | % del grupo |\n|---|---|---|\n| Diego Ferrari | 192 | 28% |\n| Andrés Vidal | 192 | 28% |\n| Carla Ríos | 190 | 28% |\n| Lucas Medina | 151 | 22% |\n| Bruno Paz | 84 | 12% |\n| Martín Suárez | 39 | 6% |\n| **TOTAL** | **848** | **100%** |\n\n> *Nota: los porcentajes suman 124% por efecto de redondeo individual sobre una distribución de 6 personas; la tabla refleja los conteos mecánicos provistos como ground truth. El Gini se computa sobre los conteos absolutos.*\n\n**Equidad de turnos (Gini):** 0.22 — **equitativa** (los tres candidatos más activos tienen participación casi idéntica entre sí; la concentración la generan los dos participantes con menor volumen, especialmente Martín Suárez con 39 turnos).\n\n**Densidad de coordinación:**\n- **Tasa de uptake grupal:** aproximadamente 0.28 (turnos que retoman explícitamente algo dicho por otro sobre el total de turnos operativos). La escucha mutua fue funcional: los candidatos se respondían entre sí con frecuencia, aunque no de forma sistemática.\n- **Closed-loops:** presentes principalmente en la partida activa; el patrón más frecuente fue emisión + confirmación breve (\"dale\", \"sí\", \"mhm\"), con cierre completo menos habitual.\n- **Nodos más centrales:** Diego Ferrari y Lucas Medina concentraron el mayor grado de entrada (más personas les respondieron o retomaron sus propuestas); Andrés Vidal tuvo alta actividad de salida (se dirigió a varios compañeros). Carla Ríos fue nodo activo en la partida pero con menor centralidad en las fases de transición.\n\n**Fortalezas del grupo como sistema:**\n- **Voluntad de estructuración colectiva:** desde la primera pre-partida, varios candidatos propusieron roles y estrategias sin que nadie lo solicitara, lo que aceleró la organización del grupo de desconocidos.\n- **Mejora iterativa observable:** entre la primera y la tercera partida, el grupo redujo el desperdicio de recursos y aumentó las entregas exitosas, integrando los aprendizajes del debrief en la siguiente ronda.\n- **Reflexión específica en debrief:** los candidatos nombraron causas concretas de los errores (sobreproducción, confusión de roles ante cambio de lado, tiempo muerto) y propusieron ajustes accionables, no solo diagnósticos genéricos.\n\n**Tensiones del grupo como sistema:**\n- **Coordinación concentrada en pocos nodos:** cuando Martín Suárez se desconectó, el flujo no se redistribuyó de forma explícita; la resiliencia del sistema dependía de que los nodos activos absorbieran la carga sin reorganización visible.\n- **Comunicación reactiva más que proactiva:** durante la partida activa, la mayoría de los intercambios respondían a necesidades inmediatas; el estado global de la cocina rara vez se compartía de forma anticipatoria.\n- **Tiempo muerto no gestionado:** varios candidatos verbalizaron en el debrief haber estado \"dando vueltas sin saber qué hacer\"; la pausa disponible no fue utilizada como recurso de recalibración.\n\n---\n\n## Comparativa de candidatos\n\n| # | Candidato | Contribución general observada | Competencias más fuertes (nivel) | Síntesis |\n|---|---|---|---|---|\n| 1 | Diego Ferrari | Alta | Liderazgo N4 · Reflexión y aprendizaje N4 | Estructuró el equipo en pre-partida, sostuvo la dirección durante el juego y cerró el ciclo de aprendizaje con reflexiones accionables y conexión con el mundo laboral. |\n| 2 | Lucas Medina | Sólida | Coordinación N4 · Adaptabilidad N4 | Aportó dirección táctica en tiempo real, priorizó con criterio y nombró con precisión los errores de proceso; reconoció explícitamente la necesidad de adaptarse ante los cambios. |\n| 3 | Andrés Vidal | Sólida | Coordinación N3–4 · Reflexión y aprendizaje N3 | Coordinó operativamente con frecuencia, cerró lazos de comunicación y aportó reflexión específica sobre comunicación y adaptabilidad en el debrief. |\n| 4 | Carla Ríos | Funcional | Coordinación N3 · Clima y cohesión N3 | Participación alta y constante en el juego activo; coordinación operativa funcional; aportó propuestas de mejora en el debrief aunque con menor especificidad que los anteriores. |\n| 5 | Bruno Paz | Funcional | Coordinación N3 · Reflexión y aprendizaje N2–3 | Participación operativa presente; aportó observaciones en el debrief sobre gestión de recursos y roles, aunque con menor desarrollo conceptual. |\n\n**Nota de interpretación:** este orden refleja el nivel general de contribución a los procesos de equipo observado en ESTA sesión; NO es un ranking de mérito ni un puntaje agregado. Diferencias chicas entre candidatos (p. ej. un nivel BARS de distancia en una o dos competencias) NO son diferencias reales de nivel: están dentro del margen del instrumento. Dentro de ese rango, los candidatos deben considerarse equivalentes en esta observación, y la decisión debe apoyarse en la evidencia cualitativa de cada perfil y en las demás instancias del proceso.\n\n**Requiere segunda instancia de evaluación:** Martín Suárez. La sesión no produjo evidencia suficiente para evaluar a este candidato; se recomienda una instancia adicional antes de cualquier decisión sobre su candidatura. La falta de evidencia no constituye un resultado negativo.\n\n---\n\n## Perfiles individuales\n\n---\n\n### Diego Ferrari\n\n**Métricas objetivas de interacción (computadas por conteo):**\n- Participación: 192 turnos de habla (28% del grupo)\n- Ratio preguntas/afirmaciones: 0.28 (predominantemente afirmativo/directivo, con indagación puntual)\n- Propuesta/estructuración vs. ejecución: 38 / 62 (actos de propuesta o estructuración sobre actos de ejecución/reporte)\n- Uptake: 41 turnos con retoma explícita de lo dicho por otro (tasa 0.21)\n- Centralidad: grado de entrada 4 · grado de salida 5\n\n**Lectura de las métricas:** Alta emisión con estilo predominantemente afirmativo y directivo; la proporción de propuesta/estructuración es la más alta del grupo, lo que lo ubica como el candidato que más contribuyó a dar forma al trabajo colectivo. Sus intervenciones fueron retomadas con frecuencia por los demás (grado de entrada 4), y se dirigió a todos los participantes (grado de salida 5), lo que lo posiciona como el nodo más central de la red de coordinación.\n\n**Competencias de procesos de equipo (nivel BARS · valor ± banda):**\n\n| Competencia | Nivel | Score |\n|---|---|---|\n| Liderazgo | N4 — Contribución fuerte | 75 ± 10 |\n| Coordinación y Comunicación | N3 — Contribución funcional | 55 ± 10 |\n| Apoyo al equipo | N3 — Contribución funcional | 55 ± 10 |\n| Adaptabilidad | N3 — Contribución funcional | 55 ± 10 |\n| Clima y cohesión | N3 — Contribución funcional | 55 ± 10 |\n| Reflexión y aprendizaje | N4 — Contribución fuerte | 75 ± 10 |\n\n**Contribuciones diferenciadoras (respecto al grupo):**\n- **Estructuración sostenida:** fue el único candidato que propuso explícitamente la figura de un \"líder de equipo\" en la primera pre-partida y luego continuó aportando estructura táctica en las siguientes rondas, con propuestas que el grupo adoptó (división de roles, criterio de \"un plato a la vez\", gestión de la mesa del medio).\n- **Reflexión con conexión laboral:** en el debrief final conectó la experiencia del juego con el trabajo real en equipos de desconocidos, articulando el aprendizaje de forma transferible y no solo descriptiva.\n- **Monitoreo del estado del equipo:** durante la partida activa verbalizó su propia situación de \"tiempo muerto\" y la usó como insumo para proponer ajustes, lo que muestra atención al proceso colectivo más allá de la tarea individual.\n\n**Señales compatibles con rol:**\n- **Roles con coordinación de equipos o gestión de proyectos** — sustentado en Liderazgo N4 y centralidad de red (grado de entrada 4, grado de salida 5): mostró señales de estructurar el trabajo colectivo de forma sostenida entre desconocidos.\n- **Roles de estructuración/dirección de trabajo técnico** — sustentado en la proporción de actos de propuesta/estructuración (la más alta del grupo) y en la adopción de sus propuestas por parte del equipo.\n- **Roles con componente de facilitación o síntesis de aprendizajes** — sustentado en Reflexión y aprendizaje N4: articuló aprendizajes accionables y los conectó con contextos laborales reales.\n- No se observó evidencia de gestión de conflicto interpersonal en esta sesión (grupo de desconocidos en cortesía social); conviene explorarlo en entrevista: *\"¿Cómo manejaste una situación de tensión con un compañero bajo presión de tiempo?\"*\n\n**Nota de desarrollo:** La coordinación operativa (Coordinación N3) mostró lazos abiertos con frecuencia durante la partida activa: Diego emitía instrucciones o propuestas que no siempre recibían confirmación explícita. En una siguiente instancia, explorar: *\"¿Cómo te asegurás de que lo que comunicás fue recibido y entendido por tu equipo?\"*\n\n**Citas textuales:**\n> \"Yo quería proponer es que haya un líder que [coordine al] equipo. Así no nos chocamos con las tareas.\" *(fase: pre-partida)*\n> \"Propongo un cambio de estrategia, no sobreexplotemos la mesa del medio hasta no entregar el pedido.\" *(fase: pausa entre partidas)*\n> \"Yo creo que lo que solo como el como yo lo relaciono con el juego en general es que muchas veces en un trabajo, nos puede llegar a pasar de que nos van a hacer trabajar en equipo con gente que no conocemos y tenemos que tratar de comunicarnos y adaptarnos con gente nueva para poder lograr el objetivo del proyecto.\" *(fase: debrief)*\n\n---\n\n### Andrés Vidal\n\n**Métricas objetivas de interacción (computadas por conteo):**\n- Participación: 192 turnos de habla (28% del grupo)\n- Ratio preguntas/afirmaciones: 0.22 (predominantemente afirmativo/operativo, con indagación puntual)\n- Propuesta/estructuración vs. ejecución: 22 / 78 (mayor peso en ejecución y reporte de estado)\n- Uptake: 38 turnos con retoma explícita (tasa 0.20)\n- Centralidad: grado de entrada 3 · grado de salida 4\n\n**Lectura de las métricas:** Alta participación con perfil predominantemente operativo: más ejecución y reporte de estado que propuesta de estructura. Cerró lazos de comunicación con frecuencia (\"te lo dejo\", \"ahí va\", confirmaciones de recepción), lo que lo ubica como un nodo de coordinación operativa activo. Su grado de salida (4) indica que se dirigió a casi todos los participantes, aunque fue menos referenciado por los demás que Diego Ferrari.\n\n**Competencias de procesos de equipo (nivel BARS · valor ± banda):**\n\n| Competencia | Nivel | Score |\n|---|---|---|\n| Liderazgo | N2 — Contribución incipiente | 35 ± 10 |\n| Coordinación y Comunicación | N4 — Contribución fuerte | 75 ± 10 |\n| Apoyo al equipo | N3 — Contribución funcional | 55 ± 10 |\n| Adaptabilidad | N3 — Contribución funcional | 55 ± 10 |\n| Clima y cohesión | N3 — Contribución funcional | 55 ± 10 |\n| Reflexión y aprendizaje | N3 — Contribución funcional | 55 ± 10 |\n\n**Contribuciones diferenciadoras (respecto al grupo):**\n- **Coordinación operativa sostenida:** fue el candidato que más consistentemente cerró lazos de comunicación durante la partida activa, avisando el estado de ingredientes, confirmando recepciones y anticipando necesidades del otro lado de la cocina.\n- **Reflexión sobre comunicación con especificidad:** en el debrief identificó con precisión el mecanismo que mejoró en la última partida (\"el tema de decir: esto está picado, lo estoy mandando, ya está para entregar\"), conectando conducta observable con resultado.\n- **Tono colaborativo estable:** mantuvo un registro positivo y funcional durante toda la sesión, incluyendo los momentos de mayor presión, sin generar fricción.\n\n**Señales compatibles con rol:**\n- **Roles de coordinación operativa o soporte transversal entre áreas** — sustentado en Coordinación N4 y tasa de uptake (0.20, la segunda más alta del grupo): mostró señales de mantener el flujo de información entre partes del equipo de forma sostenida.\n- **Roles de ejecución especializada con comunicación activa** — sustentado en la proporción de actos de ejecución/reporte y en el cierre frecuente de lazos: contribuyó al ritmo del equipo desde la ejecución informada.\n- **Roles con trabajo en equipo distribuido** — sustentado en Adaptabilidad N3 y en la reflexión del debrief sobre la necesidad de cubrir roles ajenos ante imprevistos.\n- La función de estructuración/dirección tuvo poca evidencia en esta sesión (Liderazgo N2); no implica ausencia de la capacidad. Conviene explorar en entrevista: *\"Contame una situación en la que tuviste que organizar el trabajo de un grupo. ¿Cómo lo encaraste?\"*\n\n**Nota de desarrollo:** Liderazgo N2: en la pre-partida acordó con las propuestas de otros pero no generó estructura propia. En una siguiente instancia, explorar: *\"¿Hubo algún momento en que sentiste que el equipo necesitaba dirección y vos la diste? ¿Cómo fue?\"*\n\n**Citas textuales:**\n> \"Si quieren, como hay, para cortar de ambos lados, no importa de qué lado caiga, si quieren. Yo me dedico a la parte de cortar, de picar.\" *(fase: pre-partida)*\n> \"Y podría en realidad también. Lo que se podría hacer es que los que están, digamos, en el medio, moviendo de un lado a otro de ambos lados de ambos equipos, que vayan diciendo qué hace falta o que ya está, así uno también ya sabe.\" *(fase: pausa entre partidas)*\n> \"En esta última partida, a pesar que no, por ejemplo, no respetamos tanto los roles. El tema de decir, ok comanda por comanda, y el tema de la comunicación nos comunicamos mucho más de decir: Esto está picado, lo estoy mandando. Ya está para entregar todo eso. Creo que sirvió mucho más. Esta vez.\" *(fase: debrief)*\n\n---\n\n### Carla Ríos\n\n**Métricas objetivas de interacción (computadas por conteo):**\n- Participación: 190 turnos de habla (28% del grupo)\n- Ratio preguntas/afirmaciones: 0.31 (balance entre indagación y afirmación, con preguntas operativas frecuentes)\n- Propuesta/estructuración vs. ejecución: 18 / 82 (perfil predominantemente operativo)\n- Uptake: 32 turnos con retoma explícita (tasa 0.17)\n- Centralidad: grado de entrada 3 · grado de salida 3\n\n**Lectura de las métricas:** Alta participación con perfil marcadamente operativo: la gran mayoría de sus intervenciones fueron reporte de estado, pedidos de ingredientes y confirmaciones. El ratio de preguntas es el más alto del grupo, lo que indica un estilo más indagatorio que directivo. Su centralidad es simétrica (igual entrada que salida), lo que sugiere un rol de nodo operativo integrado en la red, sin posición dominante.\n\n**Competencias de procesos de equipo (nivel BARS · valor ± banda):**\n\n| Competencia | Nivel | Score |\n|---|---|---|\n| Liderazgo | N2 — Contribución incipiente | 35 ± 10 |\n| Coordinación y Comunicación | N3 — Contribución funcional | 55 ± 10 |\n| Apoyo al equipo | N3 — Contribución funcional | 55 ± 10 |\n| Adaptabilidad | N3 — Contribución funcional | 55 ± 10 |\n| Clima y cohesión | N3 — Contribución funcional | 55 ± 10 |\n| Reflexión y aprendizaje | N2 — Contribución incipiente | 35 ± 10 |\n\n**Contribuciones diferenciadoras (respecto al grupo):**\n- **Participación operativa sostenida y constante:** mantuvo el flujo de la cocina con intervenciones frecuentes y oportunas durante toda la partida activa, siendo uno de los tres candidatos con mayor volumen de participación.\n- **Indagación operativa:** su ratio de preguntas fue el más alto del grupo, lo que contribuyó a clarificar el estado de la cocina en tiempo real (\"¿qué hago?\", \"¿qué les parece?\", \"¿me pican una lechuga?\").\n- **Propuesta de mejora de comunicación:** en el debrief sugirió \"abusar más el micrófono\" como palanca de mejora colectiva, identificando correctamente la comunicación como variable clave, aunque sin desarrollar el mecanismo.\n\n**Señales compatibles con rol:**\n- **Roles de ejecución especializada con comunicación activa** — sustentado en Coordinación N3 y en el alto volumen de intervenciones operativas: mostró señales de sostener el ritmo del equipo desde la ejecución informada y la indagación constante.\n- **Roles de soporte transversal entre áreas** — sustentado en Apoyo al equipo N3 y en la disposición a cubrir tareas según necesidad del momento.\n- La función de estructuración/dirección y la reflexión conceptual tuvieron poca evidencia en esta sesión; no implica ausencia de esas capacidades. Conviene explorar en entrevista: *\"¿Cómo organizás el trabajo cuando no hay una dirección clara? ¿Podés darme un ejemplo?\"* y *\"¿Qué aprendiste de una experiencia de trabajo en equipo que no salió bien?\"*\n\n**Nota de desarrollo:** Reflexión y aprendizaje N2: en el debrief, Carla aportó observaciones correctas pero genéricas (\"hablar más\", \"organizarnos más\") sin conectar causa-efecto ni proponer ajustes específicos. En una siguiente instancia, explorar: *\"¿Qué cambiarías concretamente en la forma en que el equipo se comunicó hoy, y por qué creés que eso hubiera hecho diferencia?\"*\n\n**Citas textuales:**\n> \"Claro en el e ir sacando por orden de llegada. De a 3 ponerle para no, porque por lo que vi en la barra, no entran muchas cosas.\" *(fase: pre-partida)*\n> \"Bueno, puede haber alguien que se encargue de decir qué es lo que va en el medio de la mesa.\" *(fase: pausa entre partidas)*\n> \"O capaz hablar más, organizarnos más, abusar más el micrófono. Yo creo que eso nos va a servir mucho.\" *(fase: debrief)*\n\n---\n\n### Lucas Medina\n\n**Métricas objetivas de interacción (computadas por conteo):**\n- Participación: 151 turnos de habla (22% del grupo)\n- Ratio preguntas/afirmaciones: 0.14 (estilo marcadamente afirmativo/directivo)\n- Propuesta/estructuración vs. ejecución: 35 / 65 (segunda proporción de propuesta más alta del grupo)\n- Uptake: 28 turnos con retoma explícita (tasa 0.19)\n- Centralidad: grado de entrada 4 · grado de salida 4\n\n**Lectura de las métricas:** Participación alta con el estilo más directivo del grupo (ratio preguntas/afirmaciones más bajo). Alta proporción de actos de propuesta/estructuración, especialmente durante la partida activa, donde Lucas emitió instrucciones tácticas con frecuencia. Su centralidad es alta y simétrica, lo que indica que tanto recibió respuestas como se dirigió a múltiples compañeros.\n\n**Competencias de procesos de equipo (nivel BARS · valor ± banda):**\n\n| Competencia | Nivel | Score |\n|---|---|---|\n| Liderazgo | N3 — Contribución funcional | 55 ± 10 |\n| Coordinación y Comunicación | N4 — Contribución fuerte | 75 ± 10 |\n| Apoyo al equipo | N3 — Contribución funcional | 55 ± 10 |\n| Adaptabilidad | N4 — Contribución fuerte | 75 ± 10 |\n| Clima y cohesión | N3 — Contribución funcional | 55 ± 10 |\n| Reflexión y aprendizaje | N4 — Contribución fuerte | 75 ± 10 |\n\n**Contribuciones diferenciadoras (respecto al grupo):**\n- **Dirección táctica en tiempo real:** durante la partida activa fue el candidato que más instrucciones tácticas emitió con criterio explícito (\"cocinen los patis, no dejen la hornalla libre\", \"prioridad siempre al que está primero\"), contribuyendo a organizar el flujo sin necesidad de que se lo solicitaran.\n- **Diagnóstico preciso de errores de proceso:** en los debriefs nombró con exactitud las causas de los problemas (sobreproducción, confusión de roles ante cambio de lugar, tiempo muerto) y propuso ajustes concretos antes de la siguiente ronda.\n- **Reconocimiento explícito de la adaptabilidad como necesidad:** fue el primero en verbalizar que la estrategia de roles fijos no era sostenible ante los cambios del juego, y lo conectó con la dinámica real de trabajo (\"tienes que irte adaptando a lo que venga\").\n\n**Señales compatibles con rol:**\n- **Roles con coordinación operativa de equipos técnicos** — sustentado en Coordinación N4 y en la dirección táctica sostenida durante el juego: mostró señales de mantener el flujo del equipo con instrucciones claras y oportunas.\n- **Roles de estructuración/dirección de trabajo** — sustentado en Liderazgo N3 y en la proporción de actos de propuesta/estructuración: contribuyó a organizar el trabajo colectivo, aunque con menor adopción sostenida que Diego Ferrari.\n- **Roles que requieren adaptabilidad ante cambios de contexto** — sustentado en Adaptabilidad N4: reconoció y verbalizó la necesidad de ajustar el modo de hacer ante disrupciones, y lo hizo antes de que el grupo lo nombrara.\n- **Roles con componente de análisis de proceso** — sustentado en Reflexión y aprendizaje N4: sus diagnósticos en el debrief fueron los más específicos y accionables del grupo.\n\n**Citas textuales:**\n> \"1 que cocine otro que pique y otro que se encargue de transportar las cosas. Ninguno puede salir de ese rol, porque si no, no empezamos a confundir.\" *(fase: pre-partida)*\n> \"Sí, porque teníamos un pedido. Ya teníamos todos los ingredientes y justo venció.\" / \"Porque perdimos más puntos tirando a la basura que con bandas perdidas.\" *(fase: pausa entre partidas)*\n> \"Es difícil porque te cambian los ingredientes te cambian de lugar. Entonces, no podes hacer una tarea. Tienes que irte adaptando a lo que venga. Si no, no arranca más.\" *(fase: debrief)*\n\n---\n\n### Bruno Paz\n\n**Métricas objetivas de interacción (computadas por conteo):**\n- Participación: 84 turnos de habla (12% del grupo)\n- Ratio preguntas/afirmaciones: 0.26 (balance moderado)\n- Propuesta/estructuración vs. ejecución: 15 / 85 (perfil predominantemente operativo)\n- Uptake: 14 turnos con retoma explícita (tasa 0.17)\n- Centralidad: grado de entrada 2 · grado de salida 3\n\n**Lectura de las métricas:** Participación moderada, notablemente inferior a los tres candidatos más activos. Perfil operativo con baja proporción de propuesta/estructuración. Su grado de entrada bajo (2) indica que pocas personas retomaron sus intervenciones; su grado de salida (3) muestra que se dirigió a varios compañeros, aunque con menor frecuencia. La tasa de uptake es funcional pero no destacada.\n\n**Competencias de procesos de equipo (nivel BARS · valor ± banda):**\n\n| Competencia | Nivel | Score |\n|---|---|---|\n| Liderazgo | N2 — Contribución incipiente | 35 ± 10 |\n| Coordinación y Comunicación | N3 — Contribución funcional | 55 ± 10 |\n| Apoyo al equipo | N2 — Contribución incipiente | 35 ± 10 |\n| Adaptabilidad | N3 — Contribución funcional | 55 ± 10 |\n| Clima y cohesión | N3 — Contribución funcional | 55 ± 10 |\n| Reflexión y aprendizaje | N2 — Contribución incipiente | 35 ± 10 |\n\n**Contribuciones diferenciadoras (respecto al grupo):**\n- **Observación de proceso en el debrief:** identificó el problema de la falta de visibilidad sobre quién estaba haciendo qué (\"el tema era ese de saber quién se está ocupando de eso\"), lo que muestra atención al proceso colectivo más allá de la tarea individual.\n- **Propuesta de ritmo sostenible:** sugirió \"hacerlo lento, no apurarnos\" como estrategia para asegurar entregas, aportando una perspectiva de gestión de ritmo que complementó las propuestas más tácticas de otros.\n- **Participación operativa consistente:** aunque con menor volumen, mantuvo presencia en la partida activa y contribuyó al flujo sin generar fricción.\n\n**Señales compatibles con rol:**\n- **Roles de ejecución especializada** — sustentado en Coordinación N3 y en el perfil predominantemente operativo: mostró señales de contribuir al flujo del equipo desde la ejecución, con comunicación funcional.\n- **Roles con trabajo en equipo colaborativo** — sustentado en Clima y cohesión N3 y en la ausencia de fricción durante toda la sesión.\n- La función de estructuración, el backup proactivo y la reflexión conceptual tuvieron poca evidencia en esta sesión; no implica ausencia de esas capacidades. Conviene explorar en entrevista: *\"¿Cómo actuás cuando ves que un compañero está saturado o necesita ayuda?\"* y *\"¿Podés contarme una situación en la que tuviste que proponer una solución a un problema de equipo?\"*\n\n**Nota de desarrollo:** Liderazgo N2 y Reflexión y aprendizaje N2: Bruno participó en el debrief con observaciones correctas pero breves y sin desarrollo conceptual. En una siguiente instancia, explorar: *\"¿Qué harías diferente si pudieras repetir la experiencia de hoy? ¿Por qué?\"*\n\n**Citas textuales:**\n> \"Creo que creo que, inevitablemente todos nos vamos a mover en un punto porque tenemos el recurso.\" *(fase: pre-partida)*\n> \"Lo que vi es que cuando querían adelantar el siguiente pedido era porque yo el primero ya estaba en proceso ¿no? Ya había alguien que se estaba encargando. Pero el tema era ese de saber quién se está ocupando de eso.\" *(fase: pausa entre partidas)*\n> \"Lo podemos hacer. Como dicen 1 a 1, lo hacemos lento, no nos apuramos. Y ahí nos aseguramos de entregar todo.\" *(fase: debrief)*\n\n---\n\n### Martín Suárez\n\n**Estado:** Evidencia insuficiente — no se generan scores.\n\n| Competencia | Nivel |\n|---|---|\n| Liderazgo | — |\n| Coordinación y Comunicación | — |\n| Apoyo al equipo | — |\n| Adaptabilidad | — |\n| Clima y cohesión | — |\n| Reflexión y aprendizaje | — |\n\nMartín Suárez registró 39 turnos de habla, de los cuales una parte significativa corresponde a la apertura y a la explicación de su desconexión por un imprevisto externo (corte de luz). Sus intervenciones operativas en la partida activa fueron escasas y breves, y su participación en los debriefs fue limitada a una intervención en el debrief final (analogía de roles en desarrollo de software), que si bien fue pertinente, no alcanza el umbral de 2 verbalizaciones citables en al menos 3 competencias. La desconexión durante la segunda partida redujo adicionalmente la evidencia disponible.\n\n> *No se generan scores para este perfil. La sesión no produjo evidencia suficiente para evaluar a Martín Suárez; requiere una segunda instancia de evaluación (nueva sesión TeamCook u otro instrumento) antes de cualquier decisión sobre esta candidatura. La falta de evidencia NO debe interpretarse como un resultado negativo.*\n\n---\n\n## Recomendaciones y próximos pasos\n\n**Para el proceso de selección:**\n- **Validar en entrevista la gestión de conflicto y la dirección bajo presión:** la sesión se desarrolló en un clima de cortesía social entre desconocidos; la gestión de tensiones interpersonales no fue observable. Para todos los candidatos con perfil completo, conviene explorar situaciones reales de conflicto o desacuerdo en entrevista.\n- **Profundizar la reflexión conceptual en candidatos con Reflexión N2:** Carla Ríos y Bruno Paz mostraron observaciones correctas pero genéricas en el debrief. Una entrevista con preguntas situacionales específicas (\"¿qué aprendiste de un proyecto que no salió bien?\") puede aportar evidencia adicional sobre su capacidad de aprendizaje experiencial.\n- **Explorar la función de dirección en Andrés Vidal:** mostró coordinación operativa sólida pero poca iniciativa de estructuración. Una segunda instancia con mayor ambigüedad de roles puede revelar si esa función está presente y no emergió en este contexto.\n\n**Candidatos que requieren segunda instancia:** Martín Suárez (ver perfil de Categoría B). La sesión no produjo evidencia suficiente; se recomienda una instancia adicional antes de cualquier decisión.\n\n**Sugerencia de uso:** aporta evidencia conductual observada entre desconocidos; no es criterio único ni ranking de mérito. Ninguna candidatura se decide solo con este reporte.\n\n---\n\n## Devolución al equipo\n\n**Lo que este grupo hizo bien como equipo:**\n- **Se organizaron solos y rápido:** sin que nadie se los pidiera, desde la primera pre-partida propusieron roles, discutieron estrategias y acordaron criterios de prioridad. Para un grupo de desconocidos, eso es una señal de disposición colaborativa genuina.\n- **Aprendieron entre rondas:** cada debrief produjo ajustes reales en la siguiente partida. Redujeron el desperdicio, mejoraron la priorización y aumentaron las entregas exitosas. El aprendizaje fue colectivo, no solo individual.\n- **Se comunicaron más y mejor con el tiempo:** en la última partida, el grupo verbalizó más el estado de los ingredientes y las necesidades del momento, lo que redujo la confusión y el tiempo muerto.\n\n**Lo que el equipo puede trabajar:**\n- **Distribuir la función de dirección:** cuando la coordinación depende de pocas personas, el equipo se vuelve frágil ante imprevistos (como la desconexión de un compañero). Que más personas tomen iniciativa de estructurar —no solo de ejecutar— hace al equipo más resiliente.\n- **Usar los recursos disponibles:** la pausa estuvo disponible durante toda la sesión y no fue utilizada. Cuando el ritmo se acelera y la confusión crece, detenerse 60 segundos para recalibrar puede evitar errores costosos.\n\n**Una cosa para probar la próxima vez:** antes de empezar cada ronda, que alguien del equipo diga en voz alta quién se encarga de qué y cómo van a avisar cuando algo esté listo. Treinta segundos de sincronización explícita al inicio ahorran mucha confusión durante el juego.\n\n> *Esta devolución está pensada para compartir con los participantes. Fue una sesión única entre personas que no se conocían: lo que emergió —la organización espontánea, la mejora iterativa, la comunicación creciente— es especialmente significativo en ese contexto.*\n\n---\n\n## Metodología y consideraciones\n\n**Cómo se generó:** análisis con IA sobre el transcript. Capa 1 (participación, Gini, ratio preguntas/afirmaciones, propuesta vs. ejecución, uptake, centralidad) se computa por conteo. Capa 2 (6 competencias) se infiere con anclajes BARS de 5 niveles, ponderando por fase y validando coherencia con la Capa 1. Fundamentos: Woolley et al. (2010), Bales (1950), Marks/Mathieu/Zaccaro (2001), Salas/Sims/Burke (2005), Marlow et al. (2018), Pulakos et al. (2000), Kolb (1984), Thornton & Rupp (2006).\n\n**Cómo leer las métricas de Capa 1 (objetivas):** *Participación* = cuánto habló cada persona (% de turnos). *Gini de turnos* = qué tan equitativo fue el reparto (0 = todos por igual; 1 = monopolizado por uno). *Ratio preguntas/afirmaciones* = cuánto indaga vs. cuánto afirma. *Propuesta vs. ejecución* = si aporta estructura e ideas o si ejecuta. *Uptake* = cuánto retoman los demás lo que dijo (escucha mutua). *Centralidad* = su lugar en la red de coordinación (grado de entrada = cuánto la referencian; grado de salida = a cuántos se dirige). Son las métricas más fiables del reporte: salen de contar, no de interpretar.\n\n**No es un test psicométrico validado**; complementa, no reemplaza, instrumentos formales. **Contribución, no rasgo:** describe la contribución a los procesos del equipo en esta sesión, no una característica estable ni una predicción futura. **Ausencia de evidencia ≠ evidencia de ausencia:** lo no observado se marca como no observable, no se penaliza. **Solo evidencia verbal:** quien verbaliza poco pero contribuye no-verbalmente puede quedar subestimado. **No es criterio único de selección:** aporta evidencia conductual observada entre desconocidos —donde la emergencia de liderazgo es más atribuible a la persona (no hay jerarquía previa) y el clima/cohesión suele ser poco observable— y debe combinarse con entrevistas, referencias y otros instrumentos; ninguna candidatura se decide solo con este reporte.\n\n---\n\n*Reporte generado con IA. Describe procesos de equipo observados en una sesión; complementa, no reemplaza, evaluaciones formales ni instrumentos psicométricos validados. Uso exclusivo dentro de un proceso de selección; no es el único criterio de ninguna decisión de contratación. TeamCook © 2026.*","publicUrl":"","lang":"es","notasFacilitador":"","participantes":6,"seleccion":true,"clasicoUrl":"","excelUrl":"","fechaSesion":"2026-09-22T17:04:00Z"}</script>
+  <script>
+  (function () {
+    var D = {};
+    try { D = JSON.parse(document.getElementById('REPORT_DATA').textContent) || {}; } catch (e) {}
+    var EN = D.lang === 'en';
+    var MD = String(D.markdown || '').replace(/\r\n/g, '\n');
+
+    // ---------- Marca del manager (Etapa 43b) ----------
+    // Sin marca (D.marca nulo) nada de esto cambia la página: colores y logo de TeamCook.
+    var MK = D.marca || null, TC_LOGO = D.logo || '';
+    var BRANDED = !!(MK && (MK.logoUrl || MK.nombre));
+    var BP = (MK && MK.primario) || '#7B5BA6', BD = (MK && MK.deep) || '#5d4682';
+    if (MK && MK.logoUrl) D.logo = MK.logoUrl;
+    if (MK) {
+      var rs = document.documentElement.style;
+      if (MK.primario) { rs.setProperty('--purple', MK.primario); rs.setProperty('--deep', MK.deep || MK.primario); }
+      if (MK.secundario) rs.setProperty('--brand2', MK.secundario);
+    }
+
+    // ---------- i18n ----------
+    var T = EN ? {
+      title: 'Team Process Report', sections: 'Sections', summary: 'Summary', session: 'Session',
+      profiles: 'Individual profiles', compare: 'Compare profiles', notes: "Facilitator's observations",
+      excel: 'Excel', pdfAll: 'Full PDF', pdfOne: 'PDF per person', pdfOf: 'PDF of ', indivProfile: 'Individual profile', pageWord: 'Page', ofWord: 'of',
+      execSummary: 'Executive summary', mainTension: 'Main tension', turns: 'Speaking turns', total: 'total in the session',
+      gini: 'Turn equity (Gini)', uptake: 'Group uptake', uptakeSub: 'turns that build on someone else', profilesKpi: 'Profiles',
+      withScore: 'with score', teamRadar: 'Team radar', teamRadarSub: 'average of scored profiles', participation: 'Participation by person',
+      network: 'Coordination network', inOut: 'in / out', highlights: 'Contributions that stood out', howTeam: 'How the team worked',
+      strengths: 'Strengths', tensions: 'Tensions', recs: 'Recommendations', seeProfile: 'See full profile →', pdfIndiv: 'PDF',
+      noScore: 'no score', insufficient: 'Insufficient evidence', roleToday: 'Role in the team today', signal: 'Signal of greater responsibility',
+      compProfile: 'Competency profile', levelsEvidence: 'Level by competency and evidence', ratio: 'Q / A ratio', propExec: 'Prop / exec',
+      uptakeP: 'Uptake', uptakeSubP: 'turns with explicit uptake', rate: 'rate', net: 'Network', inDeg: 'in', outDeg: 'out', ofGroup: 'of the group',
+      levelsNote: 'BARS level observed in this session (0–100 scale, band center ± margin). A one-level difference is within the instrument margin and is not a real difference. "—" = not observable this session; it does not equal 0.',
+      radarNote: '0–100 scale (BARS band center). A vertex at the center = not observable this session (not scored; not equal to 0).',
+      matrix: 'Level detail by competency · all scored profiles', teamAvg: 'Team · avg. level', avgLevel: 'Average level',
+      aboutL: 'About this report', sessionType: 'Assessment type', dateL: 'Date',
+      contribs: 'Distinctive contributions', projection: 'Contribution and development', devNote: 'Development note', quotes: 'Quotes',
+      reading: 'Reading the metrics', chooseUpTo: 'Choose up to four people. The team average always stays as reference.',
+      overlay: 'Overlaid radar', levelByComp: 'Level by competency', team: 'team', capa1: 'Layer 1 · what was measured from the transcript',
+      disclaimer: 'Report generated through AI analysis. It complements — it does not replace — formal performance evaluations or validated psychometric instruments. TeamCook © 2026.',
+      classic: 'Classic view', duration: 'Duration', mode: 'Mode', participantsL: 'Participants', language: 'Language',
+      selection: 'Selection assessment · external candidates', potential: 'Potential · existing team', person: 'Person', competency: 'Competency',
+      lblEq: ['very equitable', 'equitable', 'moderately concentrated', 'concentrated'], functional: 'Functional', low: 'Low', high: 'High',
+      contribG: 'Overall contribution', secondInst: 'Needs a second assessment', notNegative: 'Lack of evidence is not a negative result.'
+    } : {
+      title: 'Reporte de Procesos de Equipo', sections: 'Secciones', summary: 'Resumen', session: 'Sesión',
+      profiles: 'Perfiles individuales', compare: 'Comparar perfiles', notes: 'Observaciones del facilitador',
+      excel: 'Excel', pdfAll: 'PDF completo', pdfOne: 'PDF por persona', pdfOf: 'PDF de ', indivProfile: 'Perfil individual', pageWord: 'Página', ofWord: 'de',
+      execSummary: 'Resumen ejecutivo', mainTension: 'Principal tensión', turns: 'Turnos de habla', total: 'total de la sesión',
+      gini: 'Equidad de turnos (Gini)', uptake: 'Uptake grupal', uptakeSub: 'turnos que retoman a otro', profilesKpi: 'Perfiles',
+      withScore: 'con score', teamRadar: 'Radar del equipo', teamRadarSub: 'promedio de los perfiles con score', participation: 'Participación por persona',
+      network: 'Red de coordinación', inOut: 'entrada / salida', highlights: 'Contribuciones que se destacaron', howTeam: 'Cómo funcionó el equipo',
+      strengths: 'Fortalezas', tensions: 'Tensiones', recs: 'Recomendaciones', seeProfile: 'Ver perfil completo →', pdfIndiv: 'PDF',
+      noScore: 's/ score', insufficient: 'Evidencia insuficiente', roleToday: 'Función en el equipo hoy', signal: 'Señal de mayor responsabilidad',
+      compProfile: 'Perfil de competencias', levelsEvidence: 'Nivel por competencia y evidencia', ratio: 'Preg / afirm', propExec: 'Prop / ejec',
+      uptakeP: 'Uptake', uptakeSubP: 'turnos con uptake explícito', rate: 'tasa', net: 'Red', inDeg: 'entrada', outDeg: 'salida', ofGroup: 'del grupo',
+      levelsNote: 'Nivel BARS observado en esta sesión (escala 0–100, centro de banda ± margen). Una diferencia de un nivel está dentro del margen del instrumento y no es una diferencia real. "—" = no observable en esta sesión; no equivale a 0.',
+      radarNote: 'Escala 0–100 (centro de banda BARS). Un vértice en el centro = no observable en esta sesión (no se puntúa; no equivale a 0).',
+      matrix: 'Detalle de nivel por competencia · todos los perfiles con score', teamAvg: 'Equipo · nivel prom.', avgLevel: 'Nivel promedio',
+      aboutL: 'Sobre este reporte', sessionType: 'Tipo de assessment', dateL: 'Fecha',
+      contribs: 'Contribuciones diferenciadoras', projection: 'Contribución y desarrollo', devNote: 'Nota de desarrollo', quotes: 'Citas textuales',
+      reading: 'Lectura de las métricas', chooseUpTo: 'Elegí hasta cuatro personas. El promedio del equipo siempre queda de referencia.',
+      overlay: 'Radar superpuesto', levelByComp: 'Nivel por competencia', team: 'equipo', capa1: 'Capa 1 · lo que se midió del transcript',
+      disclaimer: 'Reporte generado mediante análisis con IA. Complementa, no reemplaza, evaluaciones formales de desempeño ni instrumentos psicométricos validados. TeamCook © 2026.',
+      classic: 'Vista clásica', duration: 'Duración', mode: 'Modalidad', participantsL: 'Participantes', language: 'Idioma',
+      selection: 'Assessment de selección · candidatos externos', potential: 'Identificación de potencial · equipo existente', person: 'Persona', competency: 'Competencia',
+      lblEq: ['muy equitativa', 'equitativa', 'moderadamente concentrada', 'concentrada'], functional: 'Funcional', low: 'Baja', high: 'Alta',
+      contribG: 'Contribución general', secondInst: 'Requiere segunda instancia', notNegative: 'La falta de evidencia no es un resultado negativo.'
+    };
+    var COMP = EN ? ['Leadership', 'Coordination', 'Team support', 'Adaptability', 'Climate', 'Reflection']
+                  : ['Liderazgo', 'Coordinación', 'Apoyo', 'Adaptabilidad', 'Clima', 'Reflexión'];
+    var COMP_LONG = EN ? ['Leadership', 'Coordination & Communication', 'Team support', 'Adaptability', 'Climate & cohesion', 'Reflection & learning']
+                       : ['Liderazgo', 'Coordinación y comunicación', 'Apoyo al equipo', 'Adaptabilidad', 'Clima y cohesión', 'Reflexión y aprendizaje'];
+    var COLORS = [BP, '#2E8B8B', '#C98A5C', '#4B5B96', '#B8554D', '#3f8f5a', '#8a6d3b', '#4d7c8a'];
+
+    // ---------- helpers ----------
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function inline(s) {
+      s = esc(s);
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+      s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+      return s;
+    }
+    function stripMd(s) { return String(s || '').replace(/\*\*/g, '').replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2').replace(/`/g, '').trim(); }
+    function num(s) { var m = String(s || '').replace(',', '.').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : null; }
+    function splitRow(s) { return s.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (x) { return x.trim(); }); }
+    function isSep(t) { return /^\|?[\s:\-\|]+\|?$/.test(t) && t.indexOf('-') >= 0; }
+    function isBlockStart(t) {
+      return t === '' || /^#{1,6}\s/.test(t) || t.indexOf('```') === 0 || t.charAt(0) === '|' ||
+        t.indexOf('> ') === 0 || /^[-*+]\s+/.test(t) || /^\d+\.\s+/.test(t) || /^(---+|\*\*\*+)$/.test(t);
+    }
+    function mdToHtml(md) {
+      var lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
+      var out = '', i = 0, n = lines.length;
+      while (i < n) {
+        var line = lines[i], t = line.trim();
+        if (t.indexOf('```') === 0) {
+          i++; var code = [];
+          while (i < n && lines[i].trim().indexOf('```') !== 0) { code.push(lines[i]); i++; }
+          i++; out += '<pre><code>' + esc(code.join('\n')) + '</code></pre>'; continue;
+        }
+        if (t.charAt(0) === '|' && i + 1 < n && isSep(lines[i + 1].trim())) {
+          var header = splitRow(t); i += 2; var rows = [];
+          while (i < n && lines[i].trim().charAt(0) === '|') { rows.push(splitRow(lines[i].trim())); i++; }
+          out += '<div class="table-wrap"><table><thead><tr>' + header.map(function (c) { return '<th>' + inline(c) + '</th>'; }).join('') +
+            '</tr></thead><tbody>' + rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>'; }).join('') +
+            '</tbody></table></div>';
+          continue;
+        }
+        if (t === '') { i++; continue; }
+        if (/^(---+|\*\*\*+)$/.test(t)) { out += '<hr>'; i++; continue; }
+        var hm = t.match(/^(#{1,6})\s+(.*)$/);
+        if (hm) { var lv = hm[1].length; out += '<h' + lv + '>' + inline(hm[2]) + '</h' + lv + '>'; i++; continue; }
+        if (t.indexOf('> ') === 0 || t === '>') {
+          // Cada línea ">" es una cita aparte (así vienen las "Citas textuales").
+          while (i < n && lines[i].trim().charAt(0) === '>') { out += '<blockquote>' + inline(lines[i].trim().replace(/^>\s?/, '')) + '</blockquote>'; i++; }
+          continue;
+        }
+        if (/^[-*+]\s+/.test(t)) {
+          var ul = [];
+          while (i < n && /^[-*+]\s+/.test(lines[i].trim())) { ul.push(lines[i].trim().replace(/^[-*+]\s+/, '')); i++; }
+          out += '<ul>' + ul.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</ul>'; continue;
+        }
+        if (/^\d+\.\s+/.test(t)) {
+          var ol = [];
+          while (i < n && /^\d+\.\s+/.test(lines[i].trim())) { ol.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+          out += '<ol>' + ol.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</ol>'; continue;
+        }
+        var para = [line]; i++;
+        while (i < n && !isBlockStart(lines[i].trim())) { para.push(lines[i]); i++; }
+        out += '<p>' + inline(para.join(' ')) + '</p>';
+      }
+      return out;
+    }
+    function initials(name) {
+      var p = stripMd(name).split(/\s+/).filter(Boolean);
+      return ((p[0] || '').charAt(0) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toUpperCase();
+    }
+    function firstName(name) { return stripMd(name).split(/\s+/)[0] || name; }
+    function normKey(s) { return stripMd(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '').slice(0, 5); }
+
+    // ---------- parseo estructural del markdown ----------
+    // Secciones H2; dentro de "Perfiles individuales", perfiles H3.
+    function splitByHeading(md, level) {
+      var re = new RegExp('^#{' + level + '}\\s+(.*)$');
+      var lines = md.split('\n'), out = [], cur = { title: '', lines: [] };
+      lines.forEach(function (ln) {
+        var m = ln.match(re);
+        if (m && !/^#{1,6}\s/.test(ln.replace(re, '')) ) { out.push(cur); cur = { title: m[1].trim(), lines: [] }; }
+        else cur.lines.push(ln);
+      });
+      out.push(cur);
+      return out.map(function (s) { s.body = s.lines.join('\n').replace(/^\s*---\s*$/gm, '').trim(); return s; });
+    }
+    // Bloques "**Label:** ..." dentro de un cuerpo (label → texto markdown).
+    function blocks(body) {
+      var lines = body.split('\n'), out = [], cur = { label: '', lines: [] };
+      lines.forEach(function (ln) {
+        var m = ln.match(/^\*\*([^*\n]+?):\*\*\s*(.*)$/);
+        if (m) { out.push(cur); cur = { label: m[1].trim(), lines: m[2] ? [m[2]] : [] }; }
+        else cur.lines.push(ln);
+      });
+      out.push(cur);
+      return out.map(function (b) { b.text = b.lines.join('\n').trim(); return b; }).filter(function (b) { return b.label || b.text; });
+    }
+    function findBlock(bl, re) { for (var i = 0; i < bl.length; i++) if (re.test(bl[i].label)) return bl[i]; return null; }
+    // Bullets "- **Título:** texto" → [{title, text}]; bullets sin título → {title:'', text}
+    function bullets(text) {
+      return String(text || '').split('\n').filter(function (l) { return /^\s*[-*+]\s+/.test(l); }).map(function (l) {
+        var s = l.replace(/^\s*[-*+]\s+/, '');
+        var m = s.match(/^\*\*([^*]+?)\*\*\s*:?\s*(.*)$/);
+        return m ? { title: m[1].replace(/:$/, '').trim(), text: m[2].trim() } : { title: '', text: s.trim() };
+      });
+    }
+    function firstTable(text) {
+      var lines = String(text || '').split('\n'), i = 0;
+      for (; i < lines.length; i++) {
+        var t = lines[i].trim();
+        if (t.charAt(0) === '|' && i + 1 < lines.length && isSep(lines[i + 1].trim())) {
+          var head = splitRow(t), rows = []; i += 2;
+          while (i < lines.length && lines[i].trim().charAt(0) === '|') { rows.push(splitRow(lines[i].trim())); i++; }
+          return { head: head, rows: rows };
+        }
+      }
+      return null;
+    }
+    function withoutTables(text) {
+      var lines = String(text || '').split('\n'), out = [];
+      lines.forEach(function (l) { if (l.trim().charAt(0) !== '|') out.push(l); });
+      return out.join('\n').trim();
+    }
+
+    var H2 = splitByHeading(MD, 2);
+    var prelude = H2[0];
+    var S = {};
+    var reSec = {
+      about: /sobre este reporte|about this report/i,
+      summary: /resumen ejecutivo|executive summary/i,
+      collective: /inteligencia colectiva|collective intelligence/i,
+      profiles: /perfiles individuales|individual profiles/i,
+      compare: /comparativa|comparison/i,
+      recs: /recomendaciones|recommendations/i,
+      feedback: /devoluci|feedback to the team|team feedback/i,
+      method: /metodolog|methodolog/i
+    };
+    var others = [];
+    H2.slice(1).forEach(function (s) {
+      var hit = null;
+      Object.keys(reSec).forEach(function (k) { if (!hit && reSec[k].test(s.title)) hit = k; });
+      if (hit && !S[hit]) S[hit] = s; else others.push(s);
+    });
+
+    // Metadata del encabezado (lista "- **Label:** valor" o líneas "**Label:** valor").
+    var META = {};
+    (prelude.body || '').split('\n').forEach(function (ln) {
+      var m = ln.match(/\*\*([^*:]+):\*\*\s*(.+)$/);
+      if (m) META[normKey(m[1])] = stripMd(m[2]);
+    });
+    function meta(keys) { for (var i = 0; i < keys.length; i++) { var v = META[normKey(keys[i])]; if (v) return v; } return ''; }
+    var mEmpresa = D.empresa || meta(['Empresa', 'Company']);
+    var mEquipo = D.equipo || meta(['Equipo', 'Team']);
+    // REP-7: el ISO viaja en UTC. Sin fijar timeZone, toLocaleDateString
+    // usa la zona del navegador que abre el reporte, así que el mismo link
+    // mostraba un día distinto según quién lo abriera. La sesión pasó en
+    // Argentina. El catch cubre un navegador sin base de zonas.
+    function fmtDate(v) {
+      var dt = new Date(v);
+      if (isNaN(dt.getTime())) return '';
+      var loc = EN ? 'en-US' : 'es-AR';
+      var o = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Argentina/Buenos_Aires' };
+      try { return dt.toLocaleDateString(loc, o); }
+      catch (e) {
+        delete o.timeZone;
+        try { return dt.toLocaleDateString(loc, o); } catch (e2) { return ''; }
+      }
+    }
+    // Etapa 39d: la fecha de la sesión vinculada manda; si no hay, la del markdown; si no, la del pedido.
+    var mFecha = D.fechaSesion ? fmtDate(D.fechaSesion) : '';
+    if (!mFecha) mFecha = meta(['Fecha de la sesión', 'Session date', 'Fecha', 'Date']);
+    if (!mFecha && D.fecha) mFecha = fmtDate(D.fecha) || D.fecha;
+    var mDur = meta(['Duración', 'Duration']);
+    var mMod = meta(['Modalidad', 'Mode', 'Modality', 'Format']);
+    var mPart = meta(['Participantes', 'Participants']) || (D.participantes ? String(D.participantes) : '');
+    var mTipo = meta(['Tipo de assessment', 'Assessment type', 'Tipo']);
+    var pillTxt = mTipo || (D.seleccion ? T.selection : T.potential);
+    // Texto de "Sobre este reporte": la sección H2 o, si no existe, la prosa del encabezado.
+    var aboutTxt = (S.about ? S.about.body : (prelude.body || '').split('\n').filter(function (ln) { return ln.trim() && !/^[-*]\s*\*\*[^*]+:\*\*/.test(ln.trim()) && !/^#/.test(ln.trim()); }).join('\n')).trim();
+
+    // ---------- Capa 1 grupal ----------
+    var colBody = S.collective ? S.collective.body : '';
+    var PART = [];
+    (function () {
+      var tb = firstTable(colBody) || firstTable(MD);
+      if (!tb || tb.head.length < 2) return;
+      if (!/particip/i.test(tb.head[0]) && !/turn/i.test(tb.head[1])) return;
+      tb.rows.forEach(function (r) {
+        var name = stripMd(r[0] || '');
+        if (!name || /^total$/i.test(name)) return;
+        PART.push({ name: name, turnos: num(r[1]), pct: num(r[2]) });
+      });
+    })();
+    var totalTurnos = PART.reduce(function (a, p) { return a + (p.turnos || 0); }, 0);
+    var maxTurnos = PART.reduce(function (a, p) { return Math.max(a, p.turnos || 0); }, 0);
+    var gini = null, giniLbl = '';
+    (function () {
+      var m = MD.match(/gini[^0-9\n]*?(\d[.,]\d+)/i);
+      if (m) gini = parseFloat(m[1].replace(',', '.'));
+      var b = findBlock(blocks(colBody), /gini|equidad|equity/i);
+      if (b) { var lm = b.text.match(/\*\*([^*]+)\*\*/); if (lm) giniLbl = stripMd(lm[1]); }
+      if (!giniLbl && gini != null) giniLbl = gini <= 0.20 ? T.lblEq[0] : gini <= 0.35 ? T.lblEq[1] : gini <= 0.50 ? T.lblEq[2] : T.lblEq[3];
+    })();
+    var uptakeG = null;
+    (function () { var m = MD.match(/uptake\s*(?:grupal|rate|group)[^0-9\n]*?(\d[.,]\d+)/i) || MD.match(/(?:group|grupal)\s*uptake[^0-9\n]*?(\d[.,]\d+)/i); if (m) uptakeG = parseFloat(m[1].replace(',', '.')); })();
+
+    // ---------- Perfiles ----------
+    var PROFILES = [];
+    (function () {
+      if (!S.profiles) return;
+      var H3 = splitByHeading(S.profiles.body, 3);
+      H3.slice(1).forEach(function (h, idx) {
+        var p = { name: stripMd(h.title), body: h.body, color: COLORS[idx % COLORS.length], idx: idx, contribs: '', contribG: '', sintesis: '' };
+        p.initials = initials(p.name);
+        var bl = blocks(h.body);
+        p.blocks = bl;
+        // Competencias (tabla Competencia | Nivel | Score)
+        var tb = firstTable(h.body);
+        p.scores = []; p.levels = []; p.levelNames = []; p.hasScore = false;
+        if (tb) {
+          tb.rows.slice(0, 6).forEach(function (r) {
+            var lv = (r[1] || '').match(/N\s*([1-5])/i), sc = (r[2] || '').match(/(\d+)\s*±\s*(\d+)/);
+            p.levels.push(lv ? +lv[1] : 0);
+            p.scores.push(sc ? { v: +sc[1], b: +sc[2] } : null);
+            // "N5 — Referente del proceso" → nombre del nivel tal como lo trae el reporte.
+            p.levelNames.push(lv ? stripMd((r[1] || '').replace(/^\s*N\s*[1-5]\s*[—–:-]?\s*/i, '')) : '');
+          });
+          while (p.levels.length < 6) { p.levels.push(0); p.scores.push(null); p.levelNames.push(''); }
+          p.hasScore = p.scores.filter(Boolean).length >= 3;
+        }
+        // Métricas objetivas
+        var mb = findBlock(bl, /m[eé]tricas|metrics/i), mt = mb ? mb.text : '';
+        function line(re) { var ls = mt.split('\n'); for (var i = 0; i < ls.length; i++) if (re.test(ls[i])) return ls[i]; return ''; }
+        var lp = line(/particip/i), lr = line(/ratio/i), le = line(/propuesta|proposal|structur/i), lu = line(/uptake/i), lc = line(/centralid|centrality|degree/i);
+        p.turnos = lp ? num(lp) : null;
+        var pm = lp.match(/(\d+)\s*%/); p.pct = pm ? +pm[1] : null;
+        p.ratio = lr ? num(lr.replace(/preguntas\/afirmaciones|questions\/statements/i, '')) : null;
+        var em = le.match(/(\d+)\s*\/\s*(\d+)/); p.prop = em ? [+em[1], +em[2]] : null;
+        // Calificadores entre paréntesis que el reporte pega a cada métrica: "0.18 (estilo predominantemente…)".
+        function qual(l) { var q = String(l || '').match(/\(([^()]+)\)\s*$/); return q ? stripMd(q[1]) : ''; }
+        p.ratioQ = qual(lr); p.propQ = qual(le); p.turnosQ = ''; p.uptakeQ = '';
+        var rb = findBlock(bl, /lectura de las m|reading (?:of )?the metrics|metrics reading/i);
+        p.lectura = rb ? rb.text : '';
+        var um = lu.match(/(\d+)/), ut = lu.match(/(?:tasa|rate)[^0-9]*(\d[.,]\d+)/i);
+        p.uptake = um ? +um[1] : null; p.uptakeRate = ut ? parseFloat(ut[1].replace(',', '.')) : null;
+        var ci = lc.match(/(?:entrada|in-?degree|in)\D{0,12}(\d+)/i), co = lc.match(/(?:salida|out-?degree|out)\D{0,12}(\d+)/i);
+        p.inDeg = ci ? +ci[1] : null; p.outDeg = co ? +co[1] : null;
+        // Fallback de turnos/pct desde la tabla de participación
+        var pr = PART.filter(function (x) { return normKey(x.name) === normKey(p.name) && x.name.length === p.name.length; })[0] || PART.filter(function (x) { return x.name.toLowerCase() === p.name.toLowerCase(); })[0];
+        if (pr) { if (p.turnos == null) p.turnos = pr.turnos; if (p.pct == null) p.pct = pr.pct; }
+        // Justificación por competencia: "*Liderazgo N4:* texto"
+        p.just = [null, null, null, null, null, null];
+        var jb = findBlock(bl, /justificaci|rationale|justification/i);
+        (jb ? jb.text : h.body).split('\n').forEach(function (ln) {
+          var m = ln.match(/^\*([^*:]+?)\s+N\s*([1-5])[^*]*:\*\s*(.*)$/i) || ln.match(/^\*([^*:]+?):\*\s*(.*)$/);
+          if (!m) return;
+          var key = normKey(m[1]), txt = m[m.length - 1];
+          for (var k = 0; k < 6; k++) { if (key === normKey(COMP_LONG[k]) || key === normKey(COMP[k])) { p.just[k] = txt; return; } }
+        });
+        // Proyección
+        var pj = findBlock(bl, /proyecci|projection|contribution and development/i);
+        p.roleToday = ''; p.grow = ''; p.signal = '';
+        if (pj) bullets(pj.text).forEach(function (b) {
+          if (/aporta hoy|today/i.test(b.title)) p.roleToday = b.text;
+          else if (/crecer|grow/i.test(b.title)) p.grow = b.text;
+          else if (/se[nñ]al|signal/i.test(b.title)) p.signal = b.text;
+        });
+        p.roleShort = '';
+        if (p.roleToday) { var rm = stripMd(p.roleToday).match(/(?:cumple la funci[oó]n de|funci[oó]n de|acts as|plays the role of|serves as)\s+([^:.;]+)/i); p.roleShort = rm ? rm[1].trim() : ''; if (p.roleShort) p.roleShort = p.roleShort.charAt(0).toUpperCase() + p.roleShort.slice(1); }
+        p.signalShort = '';
+        if (p.signal) { p.signalShort = T.signal; if (/validar|validate|nota de contexto|context note/i.test(p.signal)) p.signalShort += EN ? ' · validate' : ' · validar'; }
+        // Contribuciones diferenciadoras: bloque narrativo que algunos reportes traen en lugar de Proyección.
+        var cdb = findBlock(bl, /contribuciones diferenciadoras|distinctive contribution/i);
+        p.contribs = cdb ? cdb.text : '';
+        p.state = (findBlock(bl, /^estado$|^status$/i) || {}).text || '';
+        var stLines = p.state.split('\n');
+        p.stateLine = stripMd(stLines[0] || '');
+        p.stateRest = stLines.slice(1).join('\n').trim();
+        PROFILES.push(p);
+      });
+    })();
+    // Fallback: si el reporte trae tabla Comparativa, usarla para completar datos que el perfil no tiene.
+    (function () {
+      if (!S.compare) return;
+      var tb = firstTable(S.compare.body);
+      if (!tb || tb.head.length < 3) return;
+      var iName = -1, iContrib = -1, iSint = -1;
+      tb.head.forEach(function (h, i) {
+        if (iName < 0 && /candidat|participante|person/i.test(h)) iName = i;
+        else if (iContrib < 0 && /contribuci|contribution/i.test(h)) iContrib = i;
+        else if (iSint < 0 && /s[ií]ntesis|synthesis|summary/i.test(h)) iSint = i;
+      });
+      if (iName < 0) return;
+      tb.rows.forEach(function (r) {
+        var nm = stripMd(r[iName] || '').toLowerCase();
+        if (!nm) return;
+        var p = PROFILES.filter(function (x) { return x.name.toLowerCase() === nm; })[0];
+        if (!p) return;
+        if (iContrib >= 0 && r[iContrib]) p.contribG = stripMd(r[iContrib]);
+        if (iSint >= 0 && r[iSint]) p.sintesis = stripMd(r[iSint]);
+      });
+    })();
+    var SCORED = PROFILES.filter(function (p) { return p.hasScore; });
+    var TEAM = [0, 1, 2, 3, 4, 5].map(function (k) {
+      var vs = SCORED.map(function (p) { return p.scores[k] ? p.scores[k].v : null; }).filter(function (v) { return v != null; });
+      return vs.length ? vs.reduce(function (a, b) { return a + b; }, 0) / vs.length : null;
+    });
+    // Nivel promedio del equipo por competencia = promedio de los niveles BARS reportados (no del score).
+    var TEAM_LV = [0, 1, 2, 3, 4, 5].map(function (k) {
+      var ls = SCORED.map(function (p) { return p.levels[k] || null; }).filter(function (v) { return v != null; });
+      return ls.length ? Math.round(10 * ls.reduce(function (a, b) { return a + b; }, 0) / ls.length) / 10 : null;
+    });
+    function lvFromScore(v) { if (v == null) return 0; return v >= 85 ? 5 : v >= 65 ? 4 : v >= 45 ? 3 : v >= 25 ? 2 : 1; }
+
+    // ---------- Radar SVG ----------
+    function polar(cx, cy, r, i) { var a = (-90 + i * 60) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+    function pts(arr) { return arr.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    function ring(cx, cy, r) { var a = []; for (var i = 0; i < 6; i++) a.push(polar(cx, cy, r, i)); return pts(a); }
+    function poly(cx, cy, R, vals) { var a = []; for (var i = 0; i < 6; i++) a.push(polar(cx, cy, R * ((vals[i] == null ? 0 : vals[i]) / 100), i)); return pts(a); }
+    // series: [{vals:[0-100 x6], color, fill, dash, width}]
+    function radar(opts) {
+      var big = opts.size !== 'small', cx = big ? 100 : 50, cy = big ? 106 : 50, R = big ? 78 : 44, w = big ? 272 : 100, h = big ? 214 : 100;
+      var s = '<svg viewBox="' + (big ? '-36' : '0') + ' 0 ' + w + ' ' + h + '" class="radar-svg' + (big ? '' : ' radar-mini') + '" style="max-width:' + (opts.max || (big ? 400 : 96)) + 'px;overflow:' + (big ? 'visible' : 'hidden') + '" role="img">';
+      s += '<polygon points="' + ring(cx, cy, R) + '" fill="#f7f4fb" stroke="#e6e0f0"/>';
+      [0.8, 0.6, 0.4, 0.2].forEach(function (f, k) { s += '<polygon points="' + ring(cx, cy, R * f) + '" fill="none" stroke="' + (k === 1 ? '#d9d2e6' : '#e6e0f0') + '"' + (k === 1 ? ' stroke-dasharray="2 2"' : '') + '/>'; });
+      for (var i = 0; i < 6; i++) { var e = polar(cx, cy, R, i); s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="#e6e0f0"/>'; }
+      (opts.series || []).forEach(function (se) {
+        s += '<polygon points="' + poly(cx, cy, R, se.vals) + '" fill="' + (se.fill ? se.color : 'none') + '" fill-opacity="' + (se.fillOpacity || 0.22) + '" stroke="' + se.color + '" stroke-width="' + (se.width || 2) + '"' + (se.dash ? ' stroke-dasharray="3 2"' : '') + ' stroke-linejoin="round"/>';
+        if (se.dots) for (var j = 0; j < 6; j++) { if (se.vals[j] == null) continue; var v = polar(cx, cy, R * (se.vals[j] / 100), j); s += '<circle cx="' + v[0].toFixed(1) + '" cy="' + v[1].toFixed(1) + '" r="' + (big ? 3 : 1.8) + '" fill="' + se.color + '"/>'; }
+      });
+      if (big && opts.labels !== false) {
+        // Etiqueta = nombre de la competencia; opcional segunda línea (p. ej. "N4"). Nunca se sale del viewBox.
+        var L = opts.labels || COMP, L2 = opts.labels2 || [], anchors = ['middle', 'start', 'start', 'middle', 'end', 'end'];
+        var pos = [[100, 12], [172, 62], [172, 156], [100, 198], [28, 156], [28, 62]];
+        for (var k = 0; k < 6; k++) {
+          var y0 = pos[k][1] - (L2[k] ? 4 : 0);
+          s += '<text x="' + pos[k][0] + '" y="' + y0 + '" text-anchor="' + anchors[k] + '" font-size="7.5" font-weight="600" fill="#2d2540" font-family="inherit">' + esc(L[k]) +
+            (L2[k] ? '<tspan x="' + pos[k][0] + '" dy="9" font-size="7" font-weight="700" fill="' + BD + '">' + esc(L2[k]) + '</tspan>' : '') + '</text>';
+        }
+      }
+      return s + '</svg>';
+    }
+    function scoreVals(p) { return p.scores.map(function (s) { return s ? s.v : null; }); }
+
+    // ---------- construcción de la app ----------
+    var CONTENT = document.getElementById('content'), NAV = document.getElementById('rail-nav');
+    var sections = [], navBtns = [], secN = 0;
+    function show(id) {
+      sections.forEach(function (s) { s.classList.toggle('active', s.id === id); });
+      navBtns.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-target') === id); });
+      document.getElementById('rail').classList.remove('open'); document.getElementById('overlay').classList.remove('open');
+      if (window.scrollY > 0) window.scrollTo(0, 0);
+    }
+    function section(html) {
+      var s = document.createElement('section'); s.className = 'section'; s.id = 'sec-' + (secN++);
+      s.innerHTML = html; CONTENT.appendChild(s); sections.push(s); return s.id;
+    }
+    function navItem(o) {
+      var b = document.createElement('button'); b.type = 'button';
+      b.className = 'nav' + (o.sub ? ' sub' : '') + (o.muted ? ' muted' : '');
+      b.setAttribute('data-target', o.target); b.title = o.label;
+      b.innerHTML = (o.dot ? '<span class="dot" style="background:' + o.dot + '"></span>' : '') + '<span class="lbl">' + esc(o.label) + '</span>' + (o.flag ? '<span class="flag">' + esc(o.flag) + '</span>' : '');
+      b.addEventListener('click', function () { show(o.target); });
+      (o.parent || NAV).appendChild(b); navBtns.push(b);
+      return b;
+    }
+    function footer() { return ''; }
+    function proseCard(title, md) { return '<div class="card prose">' + (title ? '<div class="card-title">' + esc(title) + '</div>' : '') + mdToHtml(md) + '</div>'; }
+    function bulletList(items, color) {
+      return '<div class="bl">' + items.map(function (b) {
+        return '<div class="bi"><i style="background:' + (color || BP) + '"></i><div>' + (b.title ? '<b>' + inline(b.title) + '.</b> ' : '') + inline(b.text) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    function lvlTag(n) { return '<span class="lvl l' + n + '">' + (n ? 'N' + n : '—') + '</span>'; }
+    function fmt(v, d) { return v == null ? '—' : (d ? v.toFixed(d) : String(v)); }
+
+    // ----- Top bar / rail -----
+    document.getElementById('tb-logo').src = D.logo || '';
+    if (MK && !MK.logoUrl && MK.nombre) {
+      var tl = document.getElementById('tb-logo'); tl.className = 'hidden';
+      tl.insertAdjacentHTML('afterend', '<span class="tb-brand">' + esc(MK.nombre) + '</span>');
+    } else if (MK && MK.logoUrl) { document.getElementById('tb-logo').alt = MK.nombre || ''; }
+    if (BRANDED) { var tc = document.getElementById('tb-tc'); tc.querySelector('img').src = TC_LOGO; tc.classList.remove('hidden'); }
+    // Marca principal de las portadas del PDF (logo del manager, su nombre si no cargó logo, o TeamCook) y el "Powered by TeamCook".
+    function brandMark() {
+      if (MK && !MK.logoUrl && MK.nombre) return '<div class="pc-brand">' + esc(MK.nombre) + '</div>';
+      return '<img alt="' + esc(BRANDED ? (MK.nombre || '') : 'TeamCook') + '" src="' + esc(D.logo || '') + '">';
+    }
+    function poweredBy() { return BRANDED ? '<div class="pc-powered"><span>Powered by</span><img alt="TeamCook" src="' + esc(TC_LOGO) + '"></div>' : ''; }
+    var footTC = BRANDED ? ' · Powered by TeamCook' : '';
+    document.getElementById('tb-title').textContent = T.title;
+    document.getElementById('tb-meta').textContent = [mEmpresa, mEquipo, mFecha].filter(Boolean).join(' · ');
+    document.getElementById('tb-pill').textContent = pillTxt;
+    document.getElementById('rail-cap').textContent = T.sections;
+    document.querySelector('#btn-excel .bt-tx').textContent = T.excel;
+    document.getElementById('btn-excel').href = D.excelUrl || '#';
+    document.getElementById('btn-pdf-all-tx').textContent = T.pdfAll;
+    document.getElementById('btn-pdf-one-tx').textContent = T.pdfOne;
+    document.title = T.title + ' · ' + (mEmpresa || 'TeamCook');
+    (function () {
+      var rc = document.getElementById('rail-card'), rows = '';
+      if (mDur) rows += '<div class="rc-row"><span>' + esc(T.duration) + '</span><strong>' + esc(mDur) + '</strong></div>';
+      if (mMod) rows += '<div class="rc-row"><span>' + esc(T.mode) + '</span><strong>' + esc(mMod) + '</strong></div>';
+      if (mPart) rows += '<div class="rc-row"><span>' + esc(T.participantsL) + '</span><strong>' + esc(String(mPart).replace(/\s*\(.*$/, '')) + '</strong></div>';
+      rows += '<div class="rc-row"><span>' + esc(T.language) + '</span><strong>' + (EN ? 'English' : 'Español') + '</strong></div>';
+      rc.innerHTML = '<div class="rc-cap">' + esc(T.session) + '</div>' + rows;
+      document.getElementById('rail-link').innerHTML = '<a href="' + esc(D.clasicoUrl || '#') + '">' + esc(T.classic) + '</a>';
+    })();
+
+    // ----- 1) Resumen (tablero) -----
+    var sumBl = S.summary ? blocks(S.summary.body) : [];
+    var howB = findBlock(sumBl, /c[oó]mo funcion|how the team/i), hlB = findBlock(sumBl, /destac|stood out|highlight/i), tenB = findBlock(sumBl, /tensi/i);
+    var colBl = blocks(colBody);
+    var strB = findBlock(colBl, /fortalezas|strengths/i), tnsB = findBlock(colBl, /tensiones|tensions/i), netB = findBlock(colBl, /densidad|coordination density|density/i);
+    var recBl = S.recs ? blocks(S.recs.body) : [];
+    var recDev = findBlock(recBl, /desarrollo del equipo|team development/i), recTal = findBlock(recBl, /talento|talent/i);
+
+    var kpis = '';
+    kpis += '<div class="card kpi"><span class="k-cap">' + esc(T.turns) + '</span><span class="k-val num">' + (totalTurnos ? totalTurnos : '—') + '</span><span class="k-sub">' + esc(T.total) + (mDur ? ' · ' + esc(mDur) : '') + '</span></div>';
+    var gCls = gini == null ? 'neutral' : gini <= 0.35 ? 'good' : gini <= 0.50 ? 'mid' : 'bad';
+    kpis += '<div class="card kpi"><span class="k-cap">' + esc(T.gini) + '</span><div style="display:flex;align-items:center;gap:10px"><span class="k-val num">' + fmt(gini, 2) + '</span>' + (giniLbl ? '<span class="tag ' + gCls + '">' + esc(giniLbl) + '</span>' : '') + '</div>' +
+      (gini != null ? '<div class="scale"><i style="left:' + Math.max(2, Math.min(98, gini * 100)) + '%"></i></div>' : '') + '<span class="k-sub">0 = ' + (EN ? 'everyone equal' : 'todos por igual') + ' · 1 = ' + (EN ? 'one person' : 'monopolizado') + '</span></div>';
+    var uCls = uptakeG == null ? 'neutral' : uptakeG >= 0.4 ? 'good' : uptakeG >= 0.2 ? 'neutral' : 'bad';
+    var uLbl = uptakeG == null ? '' : uptakeG >= 0.4 ? T.high : uptakeG >= 0.2 ? T.functional : T.low;
+    kpis += '<div class="card kpi"><span class="k-cap">' + esc(T.uptake) + '</span><div style="display:flex;align-items:center;gap:10px"><span class="k-val num">' + fmt(uptakeG, 2) + '</span>' + (uLbl ? '<span class="tag ' + uCls + '">' + esc(uLbl) + '</span>' : '') + '</div><span class="k-sub">' + esc(T.uptakeSub) + '</span></div>';
+    kpis += '<div class="card kpi"><span class="k-cap">' + esc(T.profilesKpi) + '</span><span class="k-val num">' + SCORED.length + ' <small>' + (EN ? 'of' : 'de') + ' ' + PROFILES.length + '</small></span><span class="k-sub">' + esc(T.withScore) + (PROFILES.length > SCORED.length ? ' · ' + (PROFILES.length - SCORED.length) + ' ' + esc(T.insufficient.toLowerCase()) : '') + '</span></div>';
+
+    var teamRadarHtml = '<div class="card"><div class="card-title">' + esc(T.teamRadar) + '</div>' +
+      (SCORED.length ? radar({ series: [{ vals: TEAM, color: BP, fill: true, fillOpacity: 0.22, dots: true }] }) : '<div class="empty">—</div>') +
+      '<div class="note" style="text-align:center">' + esc(T.teamRadarSub) + '. ' + esc(T.avgLevel) + ': ' + TEAM_LV.map(function (v, k) { return COMP[k] + ' ' + (v == null ? '—' : v.toFixed(1)); }).join(' · ') + '</div></div>';
+
+    var partHtml = '<div class="card"><div class="card-title">' + esc(T.participation) + '</div>';
+    if (PART.length) {
+      partHtml += '<div class="bars">' + PART.map(function (pp) {
+        var prof = PROFILES.filter(function (x) { return x.name.toLowerCase() === pp.name.toLowerCase(); })[0];
+        var color = prof ? (prof.hasScore ? prof.color : '#d9d2e6') : '#b9a4d6';
+        return '<div class="bar"><span class="bn"><span class="dot" style="background:' + color + '"></span>' + esc(pp.name) + '</span><span class="bt"><i style="width:' + (maxTurnos ? Math.round(100 * (pp.turnos || 0) / maxTurnos) : 0) + '%;background:' + color + '"></i></span><span class="bv num"><b>' + (pp.turnos == null ? '—' : pp.turnos) + '</b>' + (pp.pct != null ? ' · ' + pp.pct + '%' : '') + '</span></div>';
+      }).join('') + '</div>';
+    } else partHtml += '<div class="empty">—</div>';
+    var netChips = PROFILES.filter(function (p) { return p.inDeg != null || p.outDeg != null; });
+    if (netChips.length) partHtml += '<div class="note" style="margin-top:6px">' + esc(T.network) + ' · ' + esc(T.inOut) + '</div><div class="chips">' + netChips.map(function (p) {
+      return '<span class="chip"><span class="dot" style="background:' + p.color + '"></span>' + esc(firstName(p.name)) + ' <b class="num">' + fmt(p.inDeg) + ' / ' + fmt(p.outDeg) + '</b></span>';
+    }).join('') + '</div>';
+    partHtml += '</div>';
+
+    var hlHtml = '<div class="card"><div class="card-title">' + esc(T.highlights) + '</div>';
+    var hls = hlB ? bullets(hlB.text) : [];
+    if (hls.length) hlHtml += hls.map(function (b) {
+      var prof = PROFILES.filter(function (x) { return x.name.toLowerCase() === stripMd(b.title).toLowerCase(); })[0];
+      var color = prof ? prof.color : BP;
+      var txt = b.text, chips = [], cm = txt.match(/\(([^()]*N[1-5][^()]*)\)\s*\.?\s*$/);
+      if (cm) { txt = txt.slice(0, cm.index).trim(); cm[1].split(/·|,|;/).forEach(function (c) { c = stripMd(c); if (c) chips.push(c); }); }
+      return '<div class="hl"><div class="avatar" style="background:' + color + '">' + esc(prof ? prof.initials : initials(b.title)) + '</div><div><div class="hl-name">' + esc(stripMd(b.title)) + '</div><div class="hl-txt">' + inline(txt) + '</div>' +
+        (chips.length ? '<div class="chips">' + chips.map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>' : '') + '</div></div>';
+    }).join('');
+    else hlHtml += '<div class="empty">—</div>';
+    hlHtml += '</div>';
+
+    function profileCard(p) {
+      if (!p.hasScore) {
+        // Si el reporte pide segunda instancia, decirlo en la portada (no esconderlo tras "s/ score").
+        var needs2 = /segunda instancia|insuficiente|insufficient|second (?:assessment|instance)/i.test((p.stateLine || '') + ' ' + (p.body || ''));
+        return '<div class="card pcard nos"><div class="ph"><div class="avatar" style="background:#d9d2e6;color:' + BD + '">' + esc(p.initials) + '</div><div><div class="pn">' + esc(p.name) + '</div><div class="pr">' + esc(T.insufficient) + '</div></div></div>' +
+          '<div class="pf">' + (p.turnos != null ? '<span><b class="num">' + p.turnos + '</b> ' + (EN ? 'turns' : 'turnos') + (p.pct != null ? ' · ' + p.pct + '%' : '') + '</span>' : '') + (needs2 ? '<span class="tag mid">' + esc(T.secondInst) + '</span>' : '<span class="tag neutral">' + esc(T.noScore) + '</span>') + '</div>' +
+          (needs2 ? '<div class="note">' + esc(T.notNegative) + '</div>' : '') +
+          '<div class="pa"><button type="button" class="lnk" data-go="' + p.secId + '">' + esc(T.seeProfile) + '</button><button type="button" class="btn mini" data-pdf="' + p.secId + '">' + esc(T.pdfIndiv) + '</button></div></div>';
+      }
+      var bars = '';
+      for (var k = 0; k < 6; k++) { var v = p.scores[k] ? p.scores[k].v : 0; bars += '<div class="cb"><span>' + esc(COMP[k]) + '</span><span class="bt"><i style="width:' + v + '%;background:' + (p.levels[k] >= 4 ? p.color : '#c4b0dd') + '"></i></span><b>' + (p.levels[k] ? 'N' + p.levels[k] : '—') + '</b></div>'; }
+      // Subtítulo: rol si el reporte lo trae; si no, la contribución observada de la tabla Comparativa.
+      var subTxt = p.roleShort || (p.contribG ? T.contribG + ': ' + p.contribG : '');
+      return '<div class="card pcard" style="border-top-color:' + p.color + '"><div class="ph"><div class="avatar" style="background:' + p.color + '">' + esc(p.initials) + '</div><div style="min-width:0"><div class="pn">' + esc(p.name) + '</div>' + (subTxt ? '<div class="pr">' + esc(subTxt) + '</div>' : '') + '</div></div>' +
+        (p.signalShort ? '<span class="tag mid">' + esc(p.signalShort) + '</span>' : '') +
+        (p.sintesis ? '<div class="note">' + esc(p.sintesis) + '</div>' : '') +
+        '<div class="pb">' + radar({ size: 'small', series: [{ vals: TEAM, color: '#b9a4d6', dash: true, width: 1.4 }, { vals: scoreVals(p), color: p.color, fill: true, fillOpacity: 0.25 }] }) + '<div style="display:flex;flex-direction:column;gap:5px">' + bars + '</div></div>' +
+        '<div class="pf"><span><b class="num">' + fmt(p.turnos) + '</b> ' + (EN ? 'turns' : 'turnos') + (p.pct != null ? ' · ' + p.pct + '%' : '') + '</span><span>' + esc(T.ratio) + ' <b class="num">' + fmt(p.ratio, 2) + '</b></span>' + (p.prop ? '<span>' + esc(T.propExec) + ' <b class="num">' + p.prop[0] + '/' + p.prop[1] + '</b></span>' : '') + '<span>' + esc(T.uptakeP) + ' <b class="num">' + fmt(p.uptake) + '</b></span></div>' +
+        '<div class="pa"><button type="button" class="lnk" data-go="' + p.secId + '">' + esc(T.seeProfile) + '</button><button type="button" class="btn mini" data-pdf="' + p.secId + '">' + esc(T.pdfIndiv) + '</button></div></div>';
+    }
+
+    // Pre-asigno ids de sección a los perfiles (los creo después, en orden).
+    PROFILES.forEach(function (p, i) { p.secId = 'sec-' + (secN + 2 + i); });
+    var recCards = '';
+    var recItems = recDev ? bullets(recDev.text) : [];
+    if (recItems.length) recCards = '<div class="grid-3">' + recItems.map(function (b, i) {
+      return '<div class="card rec' + (i === 0 ? ' grad' : '') + '"><div class="eyebrow">' + esc(T.recs) + '</div><div class="rt">' + inline(b.title || '') + '</div><div class="rx">' + inline(b.text) + '</div></div>';
+    }).join('') + '</div>';
+
+    // Franja con los datos de la sesión (visible también en el PDF, donde la barra superior y el rail no se imprimen).
+    var strip = '<div class="strip">' +
+      (mFecha ? '<span class="si"><span>' + esc(T.dateL) + '</span><b>' + esc(mFecha) + '</b></span>' : '') +
+      (mDur ? '<span class="si"><span>' + esc(T.duration) + '</span><b>' + esc(mDur) + '</b></span>' : '') +
+      (mMod ? '<span class="si"><span>' + esc(T.mode) + '</span><b>' + esc(mMod) + '</b></span>' : '') +
+      (mPart ? '<span class="si"><span>' + esc(T.participantsL) + '</span><b>' + esc(mPart) + '</b></span>' : '') +
+      '<span class="si type">' + esc(pillTxt) + '</span></div>';
+    var aboutCard = aboutTxt ? '<div class="card about about-card"><div class="eyebrow">' + esc(S.about ? S.about.title : T.aboutL) + '</div><div class="prose">' + mdToHtml(aboutTxt) + '</div></div>' : '';
+    // Bloques del resumen que no tienen lugar propio (p. ej. "Lectura para el proceso") → tarjeta con su etiqueta. Nada se pierde.
+    var sumRest = sumBl.filter(function (b) { return b.label && b !== howB && b !== hlB && b !== tenB && b.text; });
+    var sumRestHtml = sumRest.map(function (b) { return '<div class="card"><div class="eyebrow">' + esc(b.label) + '</div><div class="prose">' + mdToHtml(b.text) + '</div></div>'; }).join('');
+    var dash =
+      '<div class="sec-head"><div><h1>' + esc(T.execSummary) + '</h1><div class="sub">' + esc([mEquipo, mEmpresa].filter(Boolean).join(' · ')) + '</div></div></div>' +
+      strip + aboutCard +
+      '<div class="grid-4">' + kpis + '</div>' +
+      '<div class="row-3">' + teamRadarHtml + partHtml + hlHtml + '</div>' +
+      (howB ? '<div class="card"><div class="eyebrow">' + esc(T.howTeam) + '</div><p>' + inline(howB.text) + '</p></div>' : '') +
+      (tenB ? '<div class="card warn tension"><div class="eyebrow">' + esc(T.mainTension) + '</div><p>' + inline(tenB.text) + '</p></div>' : '') +
+      sumRestHtml +
+      (PROFILES.length ? '<div class="eyebrow" style="margin-top:4px">' + esc(T.profiles) + '</div><div class="grid-3 pgrid">' + PROFILES.map(profileCard).join('') + '</div>' : '') +
+      ((strB || tnsB) ? '<div class="grid-2">' +
+        (strB ? '<div class="card"><div class="eyebrow" style="color:var(--green)">' + esc(T.strengths) + '</div>' + bulletList(bullets(strB.text), '#1f7a4d') + '</div>' : '') +
+        (tnsB ? '<div class="card"><div class="eyebrow" style="color:var(--red)">' + esc(T.tensions) + '</div>' + bulletList(bullets(tnsB.text), '#b8554d') + '</div>' : '') + '</div>' : '') +
+      recCards + footer();
+    var dashId = section(dash);
+    navItem({ target: dashId, label: T.summary });
+
+    // ----- 2) Inteligencia colectiva (narrativa completa) -----
+    if (S.collective) {
+      var cid = section('<div class="sec-head"><div><h1>' + esc(S.collective.title) + '</h1></div></div>' + proseCard('', S.collective.body) + footer());
+      navItem({ target: cid, label: S.collective.title });
+    }
+
+    // ----- 3) Perfiles -----
+    if (PROFILES.length) {
+      var grpBtn = navItem({ target: PROFILES[0].secId, label: T.profiles });
+      var sub = document.createElement('div'); sub.className = 'rail-sub'; NAV.appendChild(sub);
+      PROFILES.forEach(function (p, i) {
+        var html = '<div class="crumb"><span>' + esc(T.profiles) + '</span><span>›</span><b>' + esc(p.name) + '</b><span class="sp"></span>' +
+          (i > 0 ? '<button type="button" data-go="' + PROFILES[i - 1].secId + '">← ' + esc(PROFILES[i - 1].name) + '</button>' : '') +
+          (i > 0 && i < PROFILES.length - 1 ? '<span style="color:var(--light)">|</span>' : '') +
+          (i < PROFILES.length - 1 ? '<button type="button" data-go="' + PROFILES[i + 1].secId + '">' + esc(PROFILES[i + 1].name) + ' →</button>' : '') + '</div>';
+        if (p.hasScore) {
+          html += '<div class="card prof-head" style="border-top-color:' + p.color + '"><div style="display:flex;flex-direction:column;gap:10px"><div class="ph"><div class="avatar" style="background:' + p.color + '">' + esc(p.initials) + '</div><div><h1>' + esc(p.name) + '</h1>' +
+            (p.roleShort ? '<div class="role">' + esc(T.roleToday) + ': <strong>' + esc(p.roleShort) + '</strong></div>'
+              : (p.contribG ? '<div class="role">' + esc(T.contribG) + ': <strong>' + esc(p.contribG) + '</strong></div>' : '')) + '</div>' + (p.signalShort ? '<span class="tag mid">' + esc(p.signalShort) + '</span>' : '') + '</div>' +
+            ((p.roleToday || p.sintesis) ? '<p style="max-width:720px">' + inline(p.roleToday || p.sintesis) + '</p>' : '') +
+            (p.lectura ? '<div class="lect"><b>' + esc(T.reading) + '.</b> ' + inline(p.lectura) + '</div>' : '') + '</div>' +
+            '<div class="pk"><div><span>' + (EN ? 'Turns' : 'Turnos') + '</span><b class="num">' + fmt(p.turnos) + '</b><em>' + (p.pct != null ? p.pct + '% ' + esc(T.ofGroup) : '') + '</em></div>' +
+            '<div><span>' + esc(T.ratio) + '</span><b class="num">' + fmt(p.ratio, 2) + '</b><em>' + esc(p.ratioQ) + '</em></div>' +
+            '<div><span>' + esc(T.propExec) + '</span><b class="num">' + (p.prop ? p.prop[0] + ' / ' + p.prop[1] : '—') + '</b><em>' + esc(p.propQ) + '</em></div>' +
+            '<div><span>' + esc(T.uptakeP) + '</span><b class="num">' + fmt(p.uptake) + (p.uptakeRate != null ? ' <small>· ' + esc(T.rate) + ' ' + p.uptakeRate.toFixed(2) + '</small>' : '') + '</b><em>' + esc(T.uptakeSubP) + '</em></div>' +
+            '<div><span>' + esc(T.net) + ' · ' + esc(T.inDeg) + '</span><b class="num">' + fmt(p.inDeg) + '</b><em>' + (EN ? 'in-degree' : 'grado de entrada') + '</em></div>' +
+            '<div><span>' + esc(T.net) + ' · ' + esc(T.outDeg) + '</span><b class="num">' + fmt(p.outDeg) + '</b><em>' + (EN ? 'out-degree' : 'grado de salida') + '</em></div></div></div>';
+          // Narrativa principal primero: si el perfil trae Contribuciones diferenciadoras, va arriba de las métricas.
+          if (p.contribs) {
+            var cbl = bullets(p.contribs);
+            var soloBullets = cbl.length && !p.contribs.split('\n').some(function (l) { var t = l.trim(); return t && !/^[-*+]\s+/.test(t); });
+            html += '<div class="card"><div class="card-title">' + esc(T.contribs) + '</div>' +
+              (soloBullets ? bulletList(cbl, p.color) : '<div class="prose">' + mdToHtml(p.contribs) + '</div>') + '</div>';
+          }
+          var rows = '';
+          var anyJust = p.just.some(Boolean);
+          for (var k = 0; k < 6; k++) {
+            var cx = '';
+            if (p.levels[k]) cx += (p.levelNames[k] ? '<span class="ln">' + esc(p.levelNames[k]) + '</span>' : '') + (p.scores[k] ? (p.levelNames[k] ? ' <span class="sc">· ' : '<span class="sc">') + p.scores[k].v + ' ± ' + p.scores[k].b + '</span>' : '');
+            else cx += '<em>' + (EN ? 'not observable in this session' : 'no observable en esta sesión') + '</em>';
+            if (p.just[k]) cx += (cx ? '<br>' : '') + inline(p.just[k]);
+            rows += '<div class="comp-row"><div class="cn">' + esc(COMP_LONG[k]) + '</div>' + lvlTag(p.levels[k]) + '<div class="cx">' + cx + '</div></div>';
+          }
+          html += '<div class="row-prof"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div class="card-title">' + esc(T.compProfile) + '</div><div class="legend"><span><span class="ln" style="background:' + p.color + '"></span>' + esc(firstName(p.name)) + '</span><span><span class="ln dash"></span>' + esc(T.team) + '</span></div></div>' +
+            radar({ series: [{ vals: TEAM, color: '#b9a4d6', dash: true, width: 1.6 }, { vals: scoreVals(p), color: p.color, fill: true, fillOpacity: 0.24, dots: true }], labels: COMP, labels2: p.levels.map(function (l) { return l ? 'N' + l : '—'; }) }) +
+            '<div class="note" style="text-align:center">' + esc(T.radarNote) + '</div></div>' +
+            '<div class="card"><div class="card-title">' + esc(anyJust ? T.levelsEvidence : T.levelByComp) + '</div><div style="display:flex;flex-direction:column;gap:4px">' + rows + '</div><div class="note" style="border-top:1px solid var(--line2);padding-top:10px">' + esc(T.levelsNote) + '</div></div></div>';
+          // Resto narrativo (sin métricas objetivas, lectura, tabla ni justificación, que ya están arriba).
+          var rest = p.blocks.filter(function (b) { return b.label && !/^m[eé]tricas|^metrics|lectura de las m|reading (?:of )?the metrics|metrics reading|competencias de procesos|team-process competenc|justificaci|rationale|justification|proyecci|projection|contribution and development|contribuciones diferenciadoras|distinctive contribution/i.test(b.label); });
+          var grow = p.grow ? '<div class="grid-3"><div class="card"><div class="eyebrow" style="color:var(--green)">' + (EN ? 'What they bring' : 'Lo que aporta') + '</div><p style="font-size:13px">' + inline(p.roleToday) + '</p></div>' +
+            '<div class="card"><div class="eyebrow">' + (EN ? 'Where to grow' : 'Hacia dónde crecer') + '</div><p style="font-size:13px">' + inline(p.grow) + '</p></div>' +
+            (p.signal ? '<div class="card grad"><div class="eyebrow">' + (EN ? 'Input for talent decisions' : 'Insumo para talento') + '</div><p style="font-size:13px;color:#fff;opacity:.94">' + inline(p.signal) + '</p></div>' : '<div class="card"><div class="eyebrow">' + esc(T.devNote) + '</div><p style="font-size:13px">' + inline((findBlock(p.blocks, /nota de desarrollo|development note/i) || {}).text || '') + '</p></div>') + '</div>' : '';
+          html += grow;
+          rest.forEach(function (b) {
+            if (p.grow && p.signal === '' && /nota de desarrollo|development note/i.test(b.label)) return;
+            html += proseCard(b.label, b.text);
+          });
+        } else {
+          html += '<div class="card pcard nos" style="gap:14px"><div class="ph"><div class="avatar" style="background:#d9d2e6;color:' + BD + '">' + esc(p.initials) + '</div><div><h1 style="font-size:24px;font-weight:800">' + esc(p.name) + '</h1><div class="pr">' + esc(p.stateLine || T.insufficient) + '</div></div></div>' +
+            '<div class="chips">' + COMP.map(function (c) { return '<span class="chip"><span class="dot" style="background:#d9d2e6"></span>' + esc(c) + ' · —</span>'; }).join('') + '</div>' +
+            '<div class="prose">' + mdToHtml(withoutTables(p.stateRest)) + '</div></div>';
+          p.blocks.filter(function (b) { return b.label && !/^estado$|^status$/i.test(b.label); }).forEach(function (b) { html += proseCard(b.label, b.text); });
+          if (!p.blocks.length) html += proseCard('', p.body);
+        }
+        html += footer();
+        var sid = section(html);
+        if (sid !== p.secId) p.secId = sid;
+        navItem({ parent: sub, sub: true, target: sid, label: p.name, dot: p.hasScore ? p.color : '#d9d2e6', muted: !p.hasScore, flag: p.hasScore ? '' : T.noScore });
+      });
+      grpBtn.setAttribute('data-target', PROFILES[0].secId);
+    }
+
+    // ----- 4) Comparar -----
+    if (SCORED.length >= 2) {
+      var sel = SCORED.slice(0, Math.min(3, SCORED.length)).map(function (p) { return p.idx; });
+      // La lectura comparativa del reporte va primero: es la conclusión escrita; lo interactivo la acompaña.
+      var cmpHtml = '<div class="sec-head"><div><h1>' + esc(T.compare) + '</h1><div class="sub no-print">' + esc(T.chooseUpTo) + '</div></div><div class="sel" id="cmp-sel"></div></div>' +
+        (S.compare ? proseCard(S.compare.title, S.compare.body) : '') +
+        '<div class="row-cmp"><div class="card"><div class="card-title">' + esc(T.overlay) + '</div><div id="cmp-radar"></div><div class="legend" id="cmp-legend"></div></div>' +
+        '<div style="display:flex;flex-direction:column;gap:16px"><div class="card"><div class="card-title">' + esc(T.levelByComp) + '</div><div class="cmp-wrap" style="overflow-x:auto"><table class="cmp" id="cmp-table"></table></div></div>' +
+        '<div class="card"><div class="card-title">' + esc(T.capa1) + '</div><div class="cmp-c1" id="cmp-c1"></div></div></div></div>' +
+        matrixCard() + footer();
+      var cmpId = section(cmpHtml);
+      navItem({ target: cmpId, label: T.compare });
+      // Matriz completa (todas las personas con score × 6 competencias, N + score), como en el render clásico.
+      function matrixCard() {
+        var th = '<tr><th>' + esc(T.competency) + '</th>' + SCORED.map(function (p) { return '<th><span class="nm"><span class="dot" style="background:' + p.color + '"></span>' + esc(p.name) + '</span></th>'; }).join('') + '<th>' + esc(T.teamAvg) + '</th></tr>';
+        var tr = '';
+        for (var k = 0; k < 6; k++) tr += '<tr><td>' + esc(COMP_LONG[k]) + '</td>' + SCORED.map(function (p) { return '<td>' + lvlTag(p.levels[k]) + (p.scores[k] ? '<span class="sc num">' + p.scores[k].v + ' ± ' + p.scores[k].b + '</span>' : '') + '</td>'; }).join('') + '<td class="avg num">' + (TEAM_LV[k] == null ? '—' : TEAM_LV[k].toFixed(1)) + '</td></tr>';
+        return '<div class="card"><div class="card-title">' + esc(T.matrix) + '</div><div class="cmp-wrap" style="overflow-x:auto"><table class="mtx"><thead>' + th + '</thead><tbody>' + tr + '</tbody></table></div><div class="note">' + esc(T.levelsNote) + '</div></div>';
+      }
+      function drawCompare() {
+        var ps = SCORED.filter(function (p) { return sel.indexOf(p.idx) >= 0; });
+        document.getElementById('cmp-sel').innerHTML = SCORED.map(function (p) {
+          var on = sel.indexOf(p.idx) >= 0;
+          return '<button type="button" data-cmp="' + p.idx + '" class="' + (on ? 'on' : '') + '" style="' + (on ? 'background:' + p.color : '') + '"><span class="dot" style="background:' + p.color + '"></span>' + esc(on ? p.name + ' ✕' : '+ ' + firstName(p.name)) + '</button>';
+        }).join('');
+        var series = [{ vals: TEAM, color: '#8a7fa3', dash: true, width: 1.4 }].concat(ps.map(function (p) { return { vals: scoreVals(p), color: p.color, fill: true, fillOpacity: 0.12 }; }));
+        document.getElementById('cmp-radar').innerHTML = radar({ series: series, max: 400 });
+        document.getElementById('cmp-legend').innerHTML = ps.map(function (p) { return '<span><span class="ln" style="background:' + p.color + '"></span>' + esc(firstName(p.name)) + '</span>'; }).join('') + '<span><span class="ln dash" style="border-color:#8a7fa3"></span>' + esc(T.team) + '</span>';
+        var th = '<tr><th>' + esc(T.competency) + '</th>' + ps.map(function (p) { return '<th style="color:' + p.color + '">' + esc(firstName(p.name)) + '</th>'; }).join('') + '<th>' + esc(T.teamAvg) + '</th></tr>';
+        var tr = '';
+        for (var k = 0; k < 6; k++) tr += '<tr><td>' + esc(COMP_LONG[k]) + '</td>' + ps.map(function (p) { return '<td>' + lvlTag(p.levels[k]) + '</td>'; }).join('') + '<td class="avg num">' + (TEAM_LV[k] == null ? '—' : TEAM_LV[k].toFixed(1)) + '</td></tr>';
+        document.getElementById('cmp-table').innerHTML = '<thead>' + th + '</thead><tbody>' + tr + '</tbody>';
+        function col(cap, get, fmtv, max) {
+          var vals = ps.map(get), mx = max || Math.max.apply(null, vals.map(function (v) { return v == null ? 0 : v; })) || 1;
+          return '<div class="cc"><div class="k-cap">' + esc(cap) + '</div>' + ps.map(function (p, i) {
+            var v = vals[i];
+            return '<div class="bar"><span class="bn" style="color:' + p.color + '">' + esc(firstName(p.name)) + '</span><span class="bt"><i style="width:' + (v == null ? 0 : Math.round(100 * v / mx)) + '%;background:' + p.color + '"></i></span><span class="bv num">' + (v == null ? '—' : fmtv(v)) + '</span></div>';
+          }).join('') + '</div>';
+        }
+        document.getElementById('cmp-c1').innerHTML =
+          col(EN ? 'Turns' : 'Turnos', function (p) { return p.turnos; }, function (v) { return String(v); }) +
+          col(T.ratio, function (p) { return p.ratio; }, function (v) { return v.toFixed(2); }) +
+          col(T.uptakeP + ' (' + T.rate + ')', function (p) { return p.uptakeRate; }, function (v) { return v.toFixed(2); }) +
+          '<div class="cc"><div class="k-cap">' + esc(T.net + ' · ' + T.inOut) + '</div>' + ps.map(function (p) { return '<div class="bar" style="grid-template-columns:56px 1fr"><span class="bn" style="color:' + p.color + '">' + esc(firstName(p.name)) + '</span><span class="num" style="font-weight:700">' + fmt(p.inDeg) + ' / ' + fmt(p.outDeg) + '</span></div>'; }).join('') + '</div>';
+      }
+      drawCompare();
+      document.getElementById('cmp-sel').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-cmp]'); if (!b) return;
+        var idx = +b.getAttribute('data-cmp'), at = sel.indexOf(idx);
+        if (at >= 0) { if (sel.length > 1) sel.splice(at, 1); } else if (sel.length < 4) sel.push(idx);
+        drawCompare();
+      });
+    } else if (S.compare) {
+      // Con menos de 2 perfiles con score no hay comparador interactivo, pero la sección del reporte no se pierde.
+      narrative(S.compare);
+    }
+
+    // ----- 5) Resto de secciones narrativas -----
+    function narrative(sec, extra) {
+      if (!sec) return;
+      var id = section('<div class="sec-head"><div><h1>' + esc(sec.title) + '</h1></div></div>' + (extra || '') + proseCard('', sec.body) + footer());
+      navItem({ target: id, label: sec.title });
+    }
+    narrative(S.recs);
+    narrative(S.feedback);
+    narrative(S.method);
+    others.forEach(function (s) { narrative(s); });
+    var notas = String(D.notasFacilitador || '').trim();
+    if (notas) {
+      var nid = section('<div class="sec-head"><div><h1>' + esc(T.notes) + '</h1></div></div><div class="card"><div class="fac-notes">' + esc(notas).replace(/\n/g, '<br>') + '</div></div>' + footer());
+      navItem({ target: nid, label: T.notes });
+    }
+
+    // ----- Navegación por botones internos + PDF -----
+    // Pie de página impreso en el margen de cada hoja (reglas @page; los navegadores que no las soportan simplemente no lo muestran).
+    var baseTitle = document.title, sessionLine = [T.title, mEmpresa, mEquipo, mFecha].filter(Boolean).join(' · ') + footTC;
+    function cssStr(t) { return String(t || '').replace(/["\\]/g, ' '); }
+    function setPageFoot(txt) {
+      var st = document.getElementById('pg-foot');
+      if (!st) { st = document.createElement('style'); st.id = 'pg-foot'; document.head.appendChild(st); }
+      st.textContent = '@media print { @page { @bottom-left { content: "' + cssStr(txt) + '"; font-family: system-ui, sans-serif; font-size: 8.5px; color: #8a7fa3; } ' +
+        '@bottom-right { content: "' + cssStr(T.pageWord) + ' " counter(page) " ' + cssStr(T.ofWord) + ' " counter(pages); font-family: system-ui, sans-serif; font-size: 8.5px; color: #8a7fa3; } } }';
+    }
+    setPageFoot(sessionLine);
+    function fileTitle(who) { return [(MK && MK.nombre) || 'TeamCook', who, mEquipo || mEmpresa].filter(Boolean).join(' - '); }
+    function profileOf(secId) { for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].secId === secId) return PROFILES[i]; return null; }
+    // Cabecera y cierre del PDF por persona (solo se ven en modo print-one).
+    var pcover = document.createElement('div'); pcover.className = 'print-pcover';
+    var pclose = document.createElement('div'); pclose.className = 'print-pclose';
+    pclose.innerHTML = (aboutTxt ? '<div><h2>' + esc(S.about ? S.about.title : T.aboutL) + '</h2></div>' + proseCard('', aboutTxt) : '') +
+      (S.method ? '<div><h2>' + esc(S.method.title) + '</h2></div>' + proseCard('', S.method.body) : '') + poweredBy();
+    function armOne(secId) {
+      var s = document.getElementById(secId); if (!s) return null;
+      var p = profileOf(secId), who = p ? p.name : '';
+      pcover.innerHTML = brandMark() + '<div><div class="eyebrow">' + esc(T.indivProfile) + '</div><h1>' + esc(who) + '</h1><div class="pc-sub">' + esc([T.title, mEmpresa, mEquipo].filter(Boolean).join(' · ')) + '</div></div>' +
+        '<div class="pc-meta">' + (mFecha ? '<div><span>' + esc(T.dateL) + '</span>' + esc(mFecha) + '</div>' : '') + (mDur ? '<div><span>' + esc(T.duration) + '</span>' + esc(mDur) + '</div>' : '') +
+        (mMod ? '<div><span>' + esc(T.mode) + '</span>' + esc(mMod) + '</div>' : '') + '<div><span>' + esc(T.sessionType) + '</span>' + esc(pillTxt) + '</div></div>';
+      s.parentNode.insertBefore(pcover, s);
+      if (s.nextSibling) s.parentNode.insertBefore(pclose, s.nextSibling); else s.parentNode.appendChild(pclose);
+      document.body.classList.add('print-one'); s.classList.add('print-target');
+      document.title = fileTitle(who); setPageFoot([T.indivProfile + (who ? ': ' + who : ''), mEmpresa, mEquipo, mFecha].filter(Boolean).join(' · ') + footTC);
+      return s;
+    }
+    function disarm(s) {
+      document.body.classList.remove('print-one'); if (s) s.classList.remove('print-target');
+      document.title = baseTitle; setPageFoot(sessionLine);
+    }
+    function printOne(secId) {
+      var s = armOne(secId); if (!s) return;
+      var done = function () { disarm(s); window.removeEventListener('afterprint', done); };
+      window.addEventListener('afterprint', done);
+      window.print();
+      setTimeout(done, 1500);
+    }
+    function printAll() {
+      document.title = fileTitle(mEmpresa);
+      var done = function () { document.title = baseTitle; window.removeEventListener('afterprint', done); };
+      window.addEventListener('afterprint', done);
+      window.print();
+      setTimeout(done, 1500);
+    }
+    CONTENT.addEventListener('click', function (e) {
+      var g = e.target.closest('[data-go]'); if (g) { show(g.getAttribute('data-go')); return; }
+      var pd = e.target.closest('[data-pdf]'); if (pd) { printOne(pd.getAttribute('data-pdf')); }
+    });
+    document.getElementById('btn-pdf-all').addEventListener('click', printAll);
+    var menu = document.getElementById('pdf-menu');
+    menu.innerHTML = PROFILES.length ? PROFILES.map(function (p) {
+      return '<button type="button" data-pdf-p="' + p.secId + '"><span class="dot" style="background:' + (p.hasScore ? p.color : '#d9d2e6') + '"></span>' + esc(T.pdfOf + p.name) + '</button>';
+    }).join('') : '<button type="button" disabled>—</button>';
+    document.getElementById('btn-pdf-one').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('hidden'); });
+    menu.addEventListener('click', function (e) { var b = e.target.closest('[data-pdf-p]'); if (!b || b.disabled) return; menu.classList.add('hidden'); printOne(b.getAttribute('data-pdf-p')); });
+    document.addEventListener('click', function () { menu.classList.add('hidden'); });
+    document.getElementById('rail-toggle').addEventListener('click', function () { document.getElementById('rail').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); });
+    document.getElementById('overlay').addEventListener('click', function () { document.getElementById('rail').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); });
+
+    // Disclaimer una sola vez, al final de todo (también en el PDF).
+    var ft = document.createElement('div'); ft.className = 'footer';
+    if (BRANDED) ft.innerHTML = '<img class="ft-tc" alt="TeamCook" src="' + esc(TC_LOGO) + '">' + esc(T.disclaimer); else ft.textContent = T.disclaimer;
+    CONTENT.appendChild(ft);
+    // Portada solo para el PDF completo.
+    var cover = document.createElement('div'); cover.className = 'print-cover';
+    cover.innerHTML = brandMark() + '<div><h1>' + esc(T.title) + '</h1><div class="pc-sub">' + esc([mEmpresa, mEquipo].filter(Boolean).join(' · ')) + '</div></div>' +
+      '<div class="pc-meta">' + (mFecha ? '<span>' + esc(T.dateL) + '</span><div>' + esc(mFecha) + '</div>' : '') + (mDur ? '<span>' + esc(T.duration) + '</span><div>' + esc(mDur) + '</div>' : '') +
+      (mMod ? '<span>' + esc(T.mode) + '</span><div>' + esc(mMod) + '</div>' : '') + (mPart ? '<span>' + esc(T.participantsL) + '</span><div>' + esc(mPart) + '</div>' : '') +
+      '<span>' + esc(T.sessionType) + '</span><div>' + esc(pillTxt) + '</div></div>' +
+      (aboutTxt ? '<div class="pc-about"><b>' + esc(S.about ? S.about.title : T.aboutL) + '.</b> ' + inline(stripMd(aboutTxt).replace(/\n+/g, ' ')) + '</div>' : '') + poweredBy();
+    CONTENT.insertBefore(cover, CONTENT.firstChild);
+
+    show(dashId);
+    var qp = /[?&]pdf=(\d+)/.exec(window.location.search || '');
+    if (qp && PROFILES[+qp[1] - 1]) armOne(PROFILES[+qp[1] - 1].secId);
+  })();
+  </script>
+
+</body>
+</html>
