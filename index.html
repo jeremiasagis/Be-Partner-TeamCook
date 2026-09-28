@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Programa de Partners TeamCook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* ===== Fuente de marca (Stag, la misma de teamcookgame.com) ===== */
+@font-face{font-family:"Stag";font-style:normal;font-weight:600;src:url("fonts/Stag-SemiBold.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Stag";font-style:normal;font-weight:700;src:url("fonts/Stag-Bold.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Stag";font-style:normal;font-weight:900;src:url("fonts/Stag-Black.ttf") format("truetype");font-display:swap}
+
+/* ===== Tokens (de colors_and_type.css, la hoja oficial del sitio) ===== */
+:root{
+  --ink-deep:#0E0814; --ink-mid:#1A1226; --ink-card:#221833;
+  --lila:#74568F; --lila-ink:#5A4470; --lila-glow:#A684C7; --lila-wash:#EDE5F3;
+  --cream:#FAD69E; --paper:#FFFBF5;
+  --orange:#FF8C42; --orange-glow:#FFB366; --fire:#FF4D2E; --fire-glow:#FFB347;
+  --ink:#3A3B3D; --ink-soft:#6A5F75; --hint:#9A8FA5;
+  --borde:rgba(116,86,143,.15); --borde-fuerte:rgba(116,86,143,.4);
+  --grad-fire:linear-gradient(135deg,var(--orange),var(--fire));
+  --grad-warm:linear-gradient(135deg,#FF8C42 0%,#FFB366 100%);
+  --grad-num:linear-gradient(135deg,var(--orange) 0%,var(--fire) 100%);
+  --f-disp:"Stag","Inter",system-ui,sans-serif;
+  --f-ui:"Inter","Segoe UI",system-ui,sans-serif;
+  --f-mono:ui-monospace,"Cascadia Mono",monospace;
+}
+html{scroll-behavior:smooth}
+html,body{height:auto}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-ui); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+h1,h2,h3,h4{font-family:var(--f-disp); line-height:1.1; margin:0; text-wrap:balance; letter-spacing:-.02em}
+p{margin:0}
+img{display:block; max-width:100%; height:auto}
+button{font-family:inherit; cursor:pointer}
+a{color:var(--lila)}
+:focus-visible{outline:3px solid var(--orange); outline-offset:2px; border-radius:8px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+.fire-txt{background:var(--grad-fire); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* ================= layout ================= */
+.layout{display:flex; flex-direction:column; min-height:100vh}
+
+/* ---------- barra superior ---------- */
+.barra{position:sticky; top:0; z-index:50;
+  background:radial-gradient(ellipse at 50% -60%, rgba(116,86,143,.5) 0%, transparent 70%), rgba(14,8,20,.97);
+  border-bottom:1px solid rgba(166,132,199,.2)}
+.barra-in{max-width:1460px; margin:0 auto; display:flex; align-items:center; gap:clamp(14px,2vw,28px);
+  padding:11px clamp(16px,3vw,44px)}
+.barra .fila-logo{display:flex; align-items:baseline; gap:10px; flex:none}
+.barra .logo{font-family:var(--f-disp); font-weight:900; font-size:19px; color:#fff; letter-spacing:-.01em}
+.barra .logo b{background:linear-gradient(135deg,var(--cream),var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.barra .prog{font-size:9.5px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--lila-glow); white-space:nowrap}
+.barra nav{display:flex; align-items:center; gap:6px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none}
+.barra nav::-webkit-scrollbar{display:none}
+.barra nav button{flex:none; background:rgba(166,132,199,.12); border:1px solid rgba(166,132,199,.22);
+  color:rgba(255,255,255,.7); font-weight:800; font-size:12px; border-radius:999px; padding:7px 13px;
+  white-space:nowrap; transition:background .15s,color .15s,border-color .15s}
+.barra nav button .n{font-family:var(--f-mono); font-size:9.5px; font-weight:700; opacity:.55; margin-right:6px}
+.barra nav button.activo .n{opacity:.8}
+.barra nav button:hover{background:rgba(166,132,199,.2); color:#fff}
+.barra nav button.activo{background:var(--grad-fire); border-color:transparent; color:#fff; box-shadow:0 6px 18px rgba(255,77,46,.38)}
+.barra nav button.leida:not(.activo){color:rgba(250,214,158,.82)}
+.barra-acc{display:flex; align-items:center; gap:9px; flex:none}
+.cta-top{background:var(--grad-fire); color:#fff; text-decoration:none; font-weight:800; font-size:13px;
+  border-radius:999px; padding:9px 18px; white-space:nowrap;
+  box-shadow:0 8px 20px rgba(255,77,46,.36), 0 0 0 1px rgba(255,179,71,.28) inset; transition:transform .2s,box-shadow .2s}
+.cta-top:hover{transform:translateY(-1px); box-shadow:0 12px 26px rgba(255,77,46,.5)}
+.btn-legal{background:transparent; border:1px solid rgba(166,132,199,.32); color:rgba(255,255,255,.55);
+  font-family:var(--f-ui); font-size:11px; font-weight:700; letter-spacing:.04em; padding:8px 13px;
+  border-radius:999px; cursor:pointer; white-space:nowrap; transition:.2s}
+.btn-legal:hover{border-color:var(--lila-glow); color:var(--cream)}
+dialog.legal{border:0; padding:0; border-radius:20px; max-width:760px; width:calc(100% - 40px);
+  background:var(--paper); color:var(--ink); box-shadow:0 40px 90px rgba(14,8,20,.45)}
+dialog.legal::backdrop{background:rgba(14,8,20,.62)}
+dialog.legal .cab{display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:22px 28px 14px; border-bottom:1px solid var(--borde)}
+dialog.legal h3{font-family:var(--f-disp); font-size:19px; margin:0; color:var(--ink)}
+dialog.legal .cerrar{background:transparent; border:0; font-size:26px; line-height:1; color:var(--hint);
+  cursor:pointer; padding:0 4px}
+dialog.legal .cerrar:hover{color:var(--fire)}
+dialog.legal .cuerpo{padding:18px 28px 26px; max-height:min(66vh,560px); overflow:auto}
+dialog.legal .cuerpo p{font-size:12.5px; line-height:1.65; color:var(--ink-soft); margin:0 0 14px}
+dialog.legal .cuerpo p:last-child{margin-bottom:0}
+dialog.legal .cuerpo b{color:var(--lila-ink)}
+
+/* ---------- contenido ---------- */
+.contenido{flex:1; min-width:0; background:var(--paper); display:flex; flex-direction:column}
+.seccion{display:none; padding:56px clamp(20px,5vw,64px) 24px}
+.seccion.visible{display:block; animation:aparecer .3s ease}
+@keyframes aparecer{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+.wrap{max-width:900px; margin:0 auto}
+.eyebrow{display:inline-block; padding:7px 16px; border-radius:999px; background:var(--lila-wash); color:var(--lila);
+  border:1px solid rgba(116,86,143,.18); font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; margin-bottom:18px}
+.seccion h2{font-weight:900; font-size:clamp(30px,4.4vw,46px); color:var(--ink); margin-bottom:12px; letter-spacing:-.025em}
+.bajada{font-size:17.5px; line-height:1.6; color:rgba(58,59,61,.72); max-width:64ch; margin-bottom:36px}
+.bajada strong{color:var(--lila)}
+.bloque{display:flex; flex-direction:column; gap:34px}
+.subtit{display:inline-block; font-weight:800; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--lila); margin-bottom:14px}
+
+/* pager */
+.pager-zona{margin-top:auto; padding:26px clamp(20px,5vw,64px) 44px; background:var(--paper)}
+.pager{max-width:900px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:14px; padding-top:24px; border-top:1px solid var(--borde)}
+.pager a{display:flex; flex-direction:column; gap:4px; text-decoration:none; background:#fff; border:1px solid var(--borde);
+  border-radius:18px; padding:16px 20px; color:var(--ink); box-shadow:0 8px 20px rgba(116,86,143,.06);
+  transition:transform .2s,border-color .2s,box-shadow .2s}
+.pager a:hover{transform:translateY(-3px); border-color:rgba(255,179,71,.55); box-shadow:0 16px 32px rgba(116,86,143,.12)}
+.pager .rot{font-size:10.5px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--hint)}
+.pager .dest{font-family:var(--f-disp); font-weight:700; font-size:16px; color:var(--lila)}
+.pager .sig{text-align:right; grid-column:2}
+
+/* ---------- botones ---------- */
+.btn{display:inline-flex; align-items:center; gap:10px; padding:15px 28px; border-radius:999px; text-decoration:none;
+  font-weight:800; font-size:15px; border:0; transition:transform .2s,box-shadow .2s,background .2s}
+.btn-fire{background:var(--grad-fire); color:#fff;
+  box-shadow:0 12px 32px rgba(255,77,46,.4), 0 0 0 1px rgba(255,179,71,.3) inset}
+.btn-fire:hover{transform:translateY(-3px); box-shadow:0 20px 44px rgba(255,77,46,.55)}
+.btn-ghost{background:transparent; color:var(--lila); border:2px solid var(--borde-fuerte)}
+.btn-ghost:hover{background:var(--lila-wash)}
+.btn-ghost-dark{background:rgba(255,255,255,.07); color:#fff; border:1.5px solid rgba(255,255,255,.28)}
+.btn-ghost-dark:hover{background:rgba(255,255,255,.13); border-color:var(--cream); color:var(--cream)}
+
+/* ---------- cards ---------- */
+.grilla{display:grid; gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+.tarjeta{position:relative; overflow:hidden; background:#fff; border:1px solid var(--borde); border-radius:20px; padding:22px;
+  box-shadow:0 12px 28px rgba(116,86,143,.08); transition:transform .25s,border-color .25s,box-shadow .25s}
+.tarjeta::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--c-tapa,var(--grad-fire)); opacity:.85}
+.tarjeta:hover{transform:translateY(-4px); border-color:rgba(255,179,71,.5); box-shadow:0 20px 40px rgba(116,86,143,.14)}
+.tarjeta h3{font-weight:700; font-size:17px; margin-bottom:7px; color:var(--ink)}
+.tarjeta p{font-size:13.5px; line-height:1.55; color:rgba(58,59,61,.65)}
+.etiquetas{display:flex; gap:9px; flex-wrap:wrap}
+.etiquetas span{background:var(--lila-wash); color:var(--lila); border:1px solid rgba(116,86,143,.15); border-radius:999px;
+  padding:7px 15px; font-size:13px; font-weight:800}
+
+/* números gradiente */
+.big-nums{display:grid; grid-template-columns:repeat(4,1fr); border-block:1px solid rgba(116,86,143,.12)}
+.big-nums > div{text-align:center; padding:26px 12px; border-right:1px solid rgba(116,86,143,.12)}
+.big-nums > div:last-child{border-right:0}
+.big-nums .n{font-family:var(--f-disp); font-weight:900; font-size:clamp(30px,4vw,46px); line-height:1;
+  background:var(--grad-num); -webkit-background-clip:text; background-clip:text; color:transparent; font-variant-numeric:tabular-nums}
+.big-nums .l{font-size:11.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(58,59,61,.6); margin-top:8px}
+
+.quote{background:#fff; border:1px solid var(--borde); border-radius:20px; padding:24px 28px; box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.quote p{font-family:var(--f-disp); font-weight:700; font-size:21px; line-height:1.3; color:var(--ink)}
+.quote p::before{content:"“"; color:var(--orange)}
+.quote p::after{content:"”"; color:var(--orange)}
+.quote .autor{font-size:12.5px; color:var(--ink-soft); margin-top:10px; font-weight:800}
+.logos{display:flex; gap:10px 24px; flex-wrap:wrap; align-items:center; font-weight:800; color:var(--hint); font-size:13.5px}
+.logos b{color:var(--ink-soft)}
+
+/* marco de navegador para el screenshot (screen-frame del sitio) */
+.screen-frame{border-radius:24px; padding:12px 12px 14px;
+  background:linear-gradient(180deg,#2A1F3A 0%,#1A1226 100%);
+  border:1.5px solid rgba(166,132,199,.25);
+  box-shadow:0 34px 70px rgba(116,86,143,.25), 0 0 0 1px rgba(255,255,255,.04) inset}
+.screen-bar{display:flex; align-items:center; gap:8px; padding:4px 8px 12px}
+.screen-bar .dot{width:10px; height:10px; border-radius:50%}
+.screen-bar .d1{background:#FF5F57}.screen-bar .d2{background:#FFBD2E}.screen-bar .d3{background:#28C940}
+.screen-bar .url{margin-left:12px; font-family:var(--f-mono); font-size:11px; letter-spacing:.05em; color:rgba(255,255,255,.4)}
+.screen-frame img{width:100%; border-radius:14px; background:#000}
+.img-pie{text-align:center; font-size:13px; font-weight:600; letter-spacing:.03em; color:rgba(58,59,61,.55); margin-top:16px}
+.img-pie .pulse{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--fire);
+  box-shadow:0 0 10px var(--fire); margin-right:8px; animation:pulse 1.5s ease-in-out infinite; vertical-align:1px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* banda destacada (manifiesto naranja del sitio) */
+.destacado{position:relative; overflow:hidden; border-radius:24px; padding:34px 36px; text-align:center;
+  background:radial-gradient(ellipse at 80% 10%, #FFB87A 0%, #FF8C42 55%, #E66A1F 100%);
+  font-family:var(--f-disp); font-weight:900; font-size:clamp(19px,2.6vw,27px); line-height:1.25; letter-spacing:-.015em; color:#2A1530}
+.destacado em{font-style:normal; background:linear-gradient(135deg,#74568F,#3A1F4A); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* aplicaciones */
+.app{position:relative; overflow:hidden; background:#fff; border:1px solid var(--borde); border-radius:22px; padding:26px 28px;
+  box-shadow:0 12px 28px rgba(116,86,143,.08); transition:transform .25s,border-color .25s,box-shadow .25s}
+.app::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--c-tapa,var(--orange)); opacity:.85}
+.app:hover{transform:translateY(-4px); border-color:rgba(255,179,71,.5); box-shadow:0 20px 40px rgba(116,86,143,.14)}
+.app .cab{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
+.app .rubro{font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--orange)}
+.app h3{font-weight:900; font-size:22px; letter-spacing:-.015em}
+.app .dur{margin-left:auto; background:var(--lila-wash); color:var(--lila); font-size:12px; font-weight:800; border-radius:999px; padding:5px 13px; white-space:nowrap}
+.app ol{margin:8px 0 0; padding-left:20px; font-size:14.5px; color:var(--ink); display:flex; flex-direction:column; gap:6px}
+.app ol li::marker{color:var(--orange); font-weight:800}
+.app .gana{margin-top:16px; border-top:1px dashed rgba(116,86,143,.25); padding-top:14px; font-size:14px; color:rgba(58,59,61,.7)}
+.app .gana b{display:block; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--lila); margin-bottom:4px}
+
+/* pilares */
+.pilares{background:#fff; border:1px solid var(--borde); border-radius:22px; padding:10px 28px; box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.pilar{border-bottom:1px solid rgba(116,86,143,.1); padding:18px 0}
+.pilar:last-child{border-bottom:0}
+.pilar h4{font-weight:700; font-size:17px; letter-spacing:-.01em}
+.pilar .en{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; color:var(--hint); text-transform:uppercase; margin-left:8px}
+.chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px}
+.chips span{background:var(--paper); border:1px solid rgba(116,86,143,.12); border-radius:999px; padding:5px 13px; font-size:12.5px; font-weight:600; color:rgba(58,59,61,.75)}
+
+/* reporte */
+.capas{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.capa{position:relative; overflow:hidden; background:#fff; border:1px solid var(--borde); border-radius:20px; padding:22px;
+  box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.capa::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--c-tapa,var(--grad-fire)); opacity:.85}
+.capa .cnum{display:inline-block; font-family:var(--f-mono); background:rgba(255,140,66,.14); color:#B05E14; font-weight:700; font-size:11px;
+  letter-spacing:.08em; border-radius:999px; padding:4px 12px; margin-bottom:12px; text-transform:uppercase}
+.capa h3{font-weight:700; font-size:18px; margin-bottom:6px}
+.capa p{font-size:14px; line-height:1.55; color:rgba(58,59,61,.65)}
+.acciones{display:flex; gap:14px; flex-wrap:wrap}
+
+/* calculadora (estilo botonera del sitio) */
+.calc{position:relative; overflow:hidden; border-radius:26px; padding:30px 32px; color:#fff;
+  background:linear-gradient(180deg,#1A1024 0%,#0E0814 100%);
+  border:1.5px solid rgba(255,179,71,.22);
+  box-shadow:0 30px 70px rgba(20,10,30,.35), inset 0 1px 0 rgba(255,255,255,.04)}
+.calc::before{content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 85% 0%, rgba(255,77,46,.2) 0%, transparent 55%)}
+.calc > *{position:relative}
+.calc-head{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  padding-bottom:16px; margin-bottom:20px; border-bottom:1px dashed rgba(255,179,71,.25)}
+.calc-head .label{font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:var(--cream)}
+.calc-head .label .dot{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--fire);
+  box-shadow:0 0 12px var(--fire); margin-right:9px; animation:pulse 1.5s ease-in-out infinite; vertical-align:0}
+.calc-head .hint{font-size:12.5px; color:rgba(255,255,255,.45)}
+.calc h3{font-family:var(--f-disp); font-weight:900; color:#fff; font-size:24px; margin-bottom:18px; letter-spacing:-.015em}
+.calc .valor{font-family:var(--f-disp); font-weight:900; font-size:clamp(30px,4vw,42px); font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,var(--cream),var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.calc input[type=range]{width:100%; accent-color:var(--orange); height:34px; margin-top:4px}
+.calc-res{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px}
+.calc-res .cr{background:rgba(166,132,199,.1); border:1px solid rgba(166,132,199,.25); border-radius:16px; padding:14px 16px}
+.calc-res .cr b{display:block; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.5); font-weight:800; margin-bottom:4px}
+.calc-res .cr span{font-family:var(--f-disp); font-weight:900; font-size:clamp(19px,2.6vw,26px); font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,var(--cream),var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.calc .nota-c{font-size:12.5px; color:rgba(255,255,255,.4); margin-top:16px; line-height:1.6}
+
+/* tabla */
+.tabla-marco{background:#fff; border:1px solid var(--borde); border-radius:20px; overflow:hidden; box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.tabla-marco table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+.tabla-marco th{text-align:left; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--hint);
+  padding:14px 18px; border-bottom:1px solid var(--borde); background:var(--paper); font-weight:800}
+.tabla-marco td{padding:15px 18px; border-bottom:1px solid rgba(116,86,143,.08); font-weight:700; font-size:15px}
+.tabla-marco tr:last-child td{border-bottom:0}
+.tabla-marco td.dest{font-family:var(--f-disp); font-weight:900; font-size:18px;
+  background:var(--grad-num); -webkit-background-clip:text; background-clip:text; color:transparent}
+.tabla-marco .ret{display:inline-block; background:rgba(255,140,66,.14); color:#B05E14; border:1px solid rgba(255,140,66,.3);
+  border-radius:999px; padding:4px 13px; font-weight:800; font-size:13.5px; white-space:nowrap}
+.nota{font-size:13px; color:var(--hint); line-height:1.6}
+
+
+/* certificación */
+.mods{background:#fff; border:1px solid var(--borde); border-radius:22px; padding:10px 28px; box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.mod{display:flex; gap:16px; align-items:baseline; padding:15px 0; border-bottom:1px solid rgba(116,86,143,.1); font-size:15px}
+.mod:last-child{border-bottom:0}
+.mod .mn{flex:none; width:30px; height:30px; border-radius:10px; background:var(--lila-wash); color:var(--lila);
+  font-family:var(--f-mono); font-weight:700; font-size:13px; display:grid; place-items:center; transform:translateY(6px)}
+.mod b{color:var(--ink)}
+.precios{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.precios > div{position:relative; overflow:hidden; background:#fff; border:1px solid var(--borde); border-radius:22px; padding:22px 26px;
+  box-shadow:0 12px 28px rgba(116,86,143,.08)}
+.precios > div::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; opacity:.85}
+.precios > div:first-child::before{background:linear-gradient(90deg,var(--lila),var(--lila-glow))}
+.precios > div:last-child::before{background:var(--grad-fire)}
+.fila{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:11px 0;
+  border-bottom:1px solid rgba(116,86,143,.08); font-weight:600; font-size:14.5px}
+.fila:last-child{border-bottom:0}
+.fila span:last-child{font-family:var(--f-disp); font-weight:900; color:var(--lila); font-size:17px; white-space:nowrap}
+.precios > div:last-child .fila span:last-child{background:var(--grad-num); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* ---------- INICIO (héroe oscuro cinematográfico) ---------- */
+.seccion.portada{padding:0}
+.portada-hero{position:relative; overflow:hidden; padding:84px clamp(22px,6vw,72px) 72px; text-align:center; color:rgba(255,255,255,.75);
+  background:radial-gradient(ellipse at 50% 15%, rgba(116,86,143,.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 85%, rgba(255,140,66,.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 12% 75%, rgba(255,77,46,.13) 0%, transparent 55%),
+    var(--ink-deep)}
+.portada-hero::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.6;
+  background-image:radial-gradient(circle at 20% 20%, rgba(255,255,255,.06) 1px, transparent 1px),
+    radial-gradient(circle at 80% 50%, rgba(255,255,255,.04) 1px, transparent 1px),
+    radial-gradient(circle at 50% 80%, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:120px 120px,180px 180px,220px 220px}
+.portada-int{position:relative; z-index:2; max-width:760px; margin:0 auto}
+.hero-eyebrow{display:inline-block; padding:8px 18px; border-radius:999px; background:rgba(166,132,199,.15);
+  border:1px solid rgba(166,132,199,.32); color:var(--cream); font-size:11.5px; font-weight:800; letter-spacing:.2em;
+  text-transform:uppercase; margin-bottom:26px}
+.portada-hero h1{font-weight:900; font-size:clamp(38px,6vw,72px); line-height:.96; letter-spacing:-.03em; color:#fff; margin-bottom:22px}
+.portada-hero h1 .accent{display:inline-block; background:linear-gradient(135deg,var(--cream) 0%,var(--orange) 50%,var(--fire) 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.portada-hero .sub{font-size:clamp(16.5px,1.8vw,19px); line-height:1.55; color:rgba(255,255,255,.72); max-width:56ch; margin:0 auto 36px}
+.portada-hero .hero-ctas{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+.hero-chef{position:absolute; width:clamp(90px,10vw,150px); z-index:2; opacity:.9;
+  filter:drop-shadow(0 22px 40px rgba(0,0,0,.55)); animation:bob 6s ease-in-out infinite}
+.hero-chef.c1{top:10%; left:3%}
+.hero-chef.c2{bottom:8%; right:4%; animation-delay:-3s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-13px) rotate(2deg)}}
+/* ingredientes volando por el banner (mismo efecto que el-juego) */
+.hero-ings{position:absolute; inset:0; pointer-events:none; z-index:1; overflow:hidden}
+.hero-ings .ing{position:absolute; left:-10%; font-size:38px; opacity:.5; will-change:left,transform;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+/* left en % = ancho del banner, no de la ventana: llegan justo a ambos bordes */
+@keyframes ing-fly-right{0%{left:-10%; transform:translateY(0) rotate(0deg)}100%{left:104%; transform:translateY(-30px) rotate(720deg)}}
+@keyframes ing-fly-left{0%{left:104%; transform:translateY(0) rotate(0deg)}100%{left:-10%; transform:translateY(-30px) rotate(-720deg)}}
+@keyframes ing-fly-diag{0%{left:-10%; transform:translateY(30px) rotate(0deg)}100%{left:104%; transform:translateY(-60px) rotate(-540deg)}}
+.hero-ings .i1{top:8%;  font-size:38px; animation:ing-fly-right 14s linear infinite; animation-delay:0s}
+.hero-ings .i2{top:22%; font-size:46px; animation:ing-fly-left 18s linear infinite; animation-delay:-6s}
+.hero-ings .i3{top:38%; font-size:34px; animation:ing-fly-right 12s linear infinite; animation-delay:-8s}
+.hero-ings .i4{top:54%; font-size:50px; animation:ing-fly-diag 16s linear infinite; animation-delay:-3s}
+.hero-ings .i5{top:68%; font-size:40px; animation:ing-fly-left 15s linear infinite; animation-delay:-10s}
+.hero-ings .i6{top:82%; font-size:44px; animation:ing-fly-right 17s linear infinite; animation-delay:-5s}
+.hero-ings .i7{top:14%; font-size:36px; animation:ing-fly-left 20s linear infinite; animation-delay:-12s}
+.hero-ings .i8{top:46%; font-size:42px; animation:ing-fly-diag 13s linear infinite reverse; animation-delay:-7s}
+@media (prefers-reduced-motion: reduce){.hero-ings{display:none}}
+.portada-resto{padding:44px clamp(20px,5vw,64px) 8px}
+.resumen{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:34px}
+.resumen a{position:relative; overflow:hidden; display:flex; gap:15px; align-items:baseline; background:#fff; border:1px solid var(--borde);
+  border-radius:20px; padding:19px 22px; text-decoration:none; color:var(--ink); box-shadow:0 12px 28px rgba(116,86,143,.07);
+  transition:transform .25s,border-color .25s,box-shadow .25s}
+.resumen a::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--c-tapa,var(--grad-fire)); opacity:.85}
+.resumen a:hover{transform:translateY(-4px); border-color:rgba(255,179,71,.5); box-shadow:0 20px 40px rgba(116,86,143,.14)}
+.resumen .rnum{font-family:var(--f-mono); font-weight:700; font-size:12px; color:var(--orange)}
+.resumen h3{font-weight:700; font-size:16.5px; margin-bottom:3px}
+.resumen p{font-size:13px; line-height:1.5; color:rgba(58,59,61,.62)}
+
+/* ---------- CONTACTO (cierre oscuro lila) ---------- */
+.seccion.cierre{padding:0}
+.cierre-int{position:relative; overflow:hidden; padding:84px clamp(22px,6vw,72px) 72px; text-align:center; color:rgba(255,255,255,.78);
+  background:radial-gradient(ellipse at 50% 0%, rgba(255,77,46,.3) 0%, transparent 55%),
+    linear-gradient(180deg,var(--lila-ink) 0%,#44325C 100%); min-height:100%}
+.cierre-int .eyebrow{background:rgba(255,255,255,.1); color:var(--cream); border-color:rgba(255,179,71,.3)}
+.cierre-int h2{font-weight:900; font-size:clamp(36px,5.6vw,64px); line-height:1; letter-spacing:-.03em; color:#fff; margin-bottom:16px}
+.cierre-int .bajada{color:rgba(255,255,255,.72); margin:0 auto 40px}
+.contacto-lineas{display:flex; flex-direction:column; gap:11px; max-width:480px; margin:0 auto 44px}
+.contacto-lineas a{display:flex; align-items:center; gap:14px; background:rgba(0,0,0,.22); border:1px solid rgba(166,132,199,.32);
+  border-radius:18px; padding:14px 20px; text-decoration:none; font-weight:800; color:#fff; font-size:15px;
+  transition:transform .2s,border-color .2s,background .2s}
+.contacto-lineas a:hover{transform:translateY(-2px); border-color:var(--cream); background:rgba(0,0,0,.32)}
+.contacto-lineas .ic{flex:none; width:38px; height:38px; border-radius:12px; background:rgba(255,179,71,.14);
+  border:1px solid rgba(255,179,71,.3); color:var(--cream); display:grid; place-items:center;
+  font-family:var(--f-mono); font-weight:700; font-size:12px}
+.cierre-chef{width:min(280px,60%); margin:0 auto; filter:drop-shadow(0 18px 34px rgba(0,0,0,.4))}
+
+/* ================= responsive ================= */
+@media (max-width:1320px){ .barra .prog{display:none} }
+@media (max-width:960px){
+  .barra-in{flex-wrap:wrap; gap:10px; padding:10px 16px}
+  .barra .fila-logo{order:1}
+  .barra-acc{order:2; margin-left:auto}
+  .barra nav{order:3; flex-basis:100%; padding-bottom:2px}
+  .cta-top{font-size:12px; padding:8px 15px}
+  .btn-legal{font-size:10.5px; padding:7px 12px}
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .big-nums{grid-template-columns:repeat(2,1fr)}
+  .big-nums > div:nth-child(2n){border-right:0}
+  .big-nums > div:nth-child(-n+2){border-bottom:1px solid rgba(116,86,143,.12)}
+  .capas,.precios,.resumen{grid-template-columns:1fr}
+  .hero-chef{width:76px; opacity:.55}
+  .hero-ings .ing{font-size:24px!important; opacity:.2}
+}
+@media (max-width:560px){
+  .barra-acc{order:4; flex-basis:100%; margin-left:0; gap:8px}
+  .cta-top{flex:1; text-align:center}
+  .g2,.g3{grid-template-columns:1fr}
+  .calc-res{grid-template-columns:1fr}
+  .pager{grid-template-columns:1fr}
+  .pager .sig{grid-column:auto; text-align:left}
+  .hero-chef{display:none}
+  .destacado{padding:26px 22px}
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ============ SIDEBAR (desktop) ============ -->
+  <!-- ============ BARRA SUPERIOR ============ -->
+  <header class="barra">
+   <div class="barra-in">
+    <div class="fila-logo"><span class="logo">TEAM<b>COOK</b></span><span class="prog">Programa de Partners</span></div>
+    <nav id="indiceM" aria-label="Índice de la propuesta">
+      <button data-sec="inicio" class="activo">Inicio</button>
+      <button data-sec="herramienta"><span class="n">01</span>Herramienta</button>
+      <button data-sec="aplicaciones"><span class="n">02</span>Aplicaciones</button>
+      <button data-sec="reporte"><span class="n">03</span>Reporte</button>
+      <button data-sec="negocio"><span class="n">04</span>Tu negocio</button>
+      <button data-sec="certificacion"><span class="n">05</span>Certificación</button>
+      <button data-sec="contacto"><span class="n">06</span>Próximo paso</button>
+    </nav>
+    <div class="barra-acc">
+      <button type="button" class="btn-legal" id="abrirLegal">Notas y aclaraciones</button>
+      <a class="cta-top" href="https://calendar.app.google/wJvqgXDQLZH5FBkt8" target="_blank" rel="noopener">Agendar una llamada</a>
+    </div>
+   </div>
+  </header>
+
+  <!-- ============ CONTENIDO ============ -->
+  <main class="contenido">
+
+      <!-- ······ INICIO ······ -->
+      <section class="seccion visible portada" id="inicio">
+        <div class="portada-hero">
+          <div class="hero-ings" aria-hidden="true">
+            <span class="ing i1">🍅</span>
+            <span class="ing i2">🥬</span>
+            <span class="ing i3">🧅</span>
+            <span class="ing i4">🍞</span>
+            <span class="ing i5">🍔</span>
+            <span class="ing i6">🍅</span>
+            <span class="ing i7">🥬</span>
+            <span class="ing i8">🍔</span>
+          </div>
+          <img class="hero-chef c1" src="assets/chef1.webp" alt="">
+          <img class="hero-chef c2" src="assets/chef3.webp" alt="">
+          <div class="portada-int">
+            <span class="hero-eyebrow">TeamCook · Programa de Partners</span>
+            <h1>Cuando jugamos juntos, <span class="accent">ganamos todos.</span></h1>
+            <p class="sub">Gamificá tus capacitaciones y assessments con TeamCook: una simulación online donde los equipos cooperan en una cocina bajo presión, y un reporte con IA que convierte cada sesión en evidencia concreta para tu cliente.</p>
+            <div class="hero-ctas">
+              <a class="btn btn-fire" href="#herramienta" data-ir="herramienta">Empezar por la herramienta →</a>
+              <a class="btn btn-ghost-dark" href="https://calendar.app.google/wJvqgXDQLZH5FBkt8" target="_blank" rel="noopener">Agendar una llamada</a>
+            </div>
+          </div>
+        </div>
+        <div class="portada-resto">
+          <div class="wrap">
+            <p class="subtit">Qué hay en esta propuesta</p>
+            <div class="resumen">
+              <a href="#herramienta" data-ir="herramienta" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FFB366)"><span class="rnum">01</span><span><h3>La herramienta</h3><p>Qué es TeamCook, cómo se ve una partida y qué resultados tiene.</p></span></a>
+              <a href="#aplicaciones" data-ir="aplicaciones" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)"><span class="rnum">02</span><span><h3>Las 5 aplicaciones</h3><p>Selección, talento, capacitación, cultura y team building.</p></span></a>
+              <a href="#reporte" data-ir="reporte" style="--c-tapa:linear-gradient(90deg,#6BB7FF,#A684C7)"><span class="rnum">03</span><span><h3>El reporte</h3><p>6 competencias con IA, respaldadas con citas textuales. Con ejemplo real.</p></span></a>
+              <a href="#negocio" data-ir="negocio" style="--c-tapa:linear-gradient(90deg,#FFB366,#FF4D2E)"><span class="rnum">04</span><span><h3>Tu negocio</h3><p>Costo fijo por sesión, margen del 88% o más y calculadora de retorno.</p></span></a>
+              <a href="#certificacion" data-ir="certificacion" style="--c-tapa:linear-gradient(90deg,#FAD69E,#FF8C42)"><span class="rnum">05</span><span><h3>La certificación</h3><p>5 módulos en 4–6 semanas, precios y packs de sesiones.</p></span></a>
+              <a href="#contacto" data-ir="contacto" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FF4D2E)"><span class="rnum">06</span><span><h3>Próximo paso</h3><p>Una llamada de 30 minutos para ver si suma a tu portfolio.</p></span></a>
+            </div>
+            <div class="logos"><span>Lo usaron equipos de</span><b>Globant</b><b>Arcos Dorados</b><b>PSA</b><b>Terrand</b><b>Aliantec</b><b>Infracommerce</b><b>Fundación Forge</b></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ······ 01 HERRAMIENTA ······ -->
+      <section class="seccion" id="herramienta">
+        <div class="wrap">
+        <span class="eyebrow">01 · La herramienta</span>
+        <h2>TeamCook: la herramienta que usás <span class="fire-txt">para facilitar.</span></h2>
+        <p class="bajada">Una simulación gamificada online donde equipos (en sesiones de hasta 12 personas) gestionan una cocina bajo presión. Mientras juegan, la IA analiza la conversación. <strong>Vos observás, facilitás la reflexión y entregás el reporte.</strong></p>
+        <div class="bloque">
+          <div class="grilla g2">
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FFB366)"><h3>Una experiencia gamificada</h3><p>Tus clientes juegan, colaboran y se ven a sí mismos trabajando en equipo.</p></div>
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)"><h3>Un reporte con IA por sesión</h3><p>Datos reales sobre liderazgo, comunicación y colaboración. Lo sumás en las sesiones donde lo entregás.</p></div>
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#6BB7FF,#A684C7)"><h3>Cinco aplicaciones</h3><p>Una sola certificación, cinco propuestas distintas para tu portfolio.</p></div>
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#FAD69E,#FF8C42)"><h3>Respaldo metodológico</h3><p>Kolb, Octalysis y el modelo TeamCook de procesos de equipo (6 competencias).</p></div>
+          </div>
+          <div class="etiquetas"><span>Sin instalación: entran por el navegador</span><span>30–120 min por sesión</span><span>100% online</span><span>Español e inglés</span></div>
+          <div>
+            <p class="subtit">Así se ve una partida</p>
+            <div class="screen-frame">
+              <div class="screen-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">play.teamcookgame.com</span></div>
+              <img src="assets/gameplay.webp" alt="Partida de TeamCook: seis chefs con nombre en pantalla cocinando pedidos contra reloj">
+            </div>
+            <p class="img-pie"><span class="pulse"></span>Cada participante es un chef con su nombre en pantalla: ves quién hace qué en cada momento.</p>
+          </div>
+          <div class="grilla g3">
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FF4D2E)"><h3>Nadie resuelve solo</h3><p>Los pedidos entran contra reloj y el equipo tiene que coordinarse para sacarlos.</p></div>
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)"><h3>Vos controlás la partida</h3><p>Incendios, cambios de rol y crisis controladas cuando lo decidís.</p></div>
+            <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#6BB7FF,#A684C7)"><h3>Todo queda registrado</h3><p>La conversación del equipo alimenta el reporte que entregás después.</p></div>
+          </div>
+          <div>
+            <p class="subtit">Probada por equipos reales</p>
+            <div class="big-nums">
+              <div><div class="n">+300</div><div class="l">equipos</div></div>
+              <div><div class="n">+1.800</div><div class="l">personas</div></div>
+              <div><div class="n">+90%</div><div class="l">engagement</div></div>
+              <div><div class="n">4,52/5</div><div class="l">experiencia general</div></div>
+            </div>
+          </div>
+          <div class="quote"><p>El training más atractivo que tuve en la empresa.</p><div class="autor">Participante de Globant en una sesión TeamCook</div></div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ······ 02 APLICACIONES ······ -->
+      <section class="seccion" id="aplicaciones">
+        <div class="wrap">
+        <span class="eyebrow">02 · Las 5 aplicaciones</span>
+        <h2>Todo lo que podés hacer <span class="fire-txt">con TeamCook.</span></h2>
+        <p class="bajada">Mismo juego, un reporte en dos modos, <strong>cinco aplicaciones distintas</strong> para tu portfolio.</p>
+        <div class="bloque">
+          <div class="app" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FF4D2E)">
+            <div class="cab"><div><div class="rubro">Selección</div><h3>Assessment Center</h3></div><span class="dur">90–120 min</span></div>
+            <ol><li>Lo sumás como etapa de tu proceso de selección, con los finalistas.</li><li>Los candidatos juegan juntos y resuelven bajo presión real.</li><li>Entregás el reporte en 15 minutos, con evidencia por candidato.</li></ol>
+            <div class="gana"><b>Lo que gana tu cliente</b>Compara candidatos por comportamiento observado, no por lo que cada uno dice de sí mismo en un test.</div>
+          </div>
+          <div class="app" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)">
+            <div class="cab"><div><div class="rubro">Talento</div><h3>Identificar Potencial</h3></div><span class="dur">90–120 min</span></div>
+            <ol><li>Lo proponés dentro de programas de alto potencial o planes de sucesión.</li><li>Equipos que ya trabajan juntos juegan una sesión.</li><li>Devolvés quién mostró potencial de liderazgo, con la cita que lo respalda.</li></ol>
+            <div class="gana"><b>Lo que gana tu cliente</b>Descubre potencial de liderazgo entre personas que ya están en la organización.</div>
+          </div>
+          <div class="app" style="--c-tapa:linear-gradient(90deg,#6BB7FF,#A684C7)">
+            <div class="cab"><div><div class="rubro">Capacitación y desarrollo</div><h3>Aprendizaje práctico</h3></div><span class="dur">90–120 min</span></div>
+            <ol><li>Elegís la competencia con tu cliente: comunicación, liderazgo, decisiones, feedback.</li><li>El equipo la practica jugando: la dinámica se arma para exponerla.</li><li>La trabajás en el debrief, con el comportamiento real sobre la mesa y el reporte de la sesión.</li></ol>
+            <div class="gana"><b>Lo que gana tu cliente</b>La competencia entrenada de verdad, más el mapa de brechas y fortalezas del equipo.</div>
+          </div>
+          <div class="app" style="--c-tapa:linear-gradient(90deg,#FAD69E,#FF8C42)">
+            <div class="cab"><div><div class="rubro">Cultura y clima</div><h3>Cohesión</h3></div><span class="dur">60 min</span></div>
+            <ol><li>Lo proponés para kick-offs, cierres de ciclo o equipos dispersos.</li><li>El equipo tiene que construir algo junto, bajo presión.</li><li>Cerrás con una conversación sobre cómo trabajaron.</li></ol>
+            <div class="gana"><b>Lo que gana tu cliente</b>Un equipo que construyó algo junto y que se conoce de otra manera.</div>
+          </div>
+          <div class="app" style="--c-tapa:linear-gradient(90deg,#FFB366,#74568F)">
+            <div class="cab"><div><div class="rubro">Team building</div><h3>Integración</h3></div></div>
+            <ol><li>Lo sumás a onboardings, integraciones o fusiones de áreas.</li><li>Personas que no se conocen tienen que coordinarse de verdad.</li><li>El reporte muestra cómo se organizó el grupo desde el primer día.</li></ol>
+            <div class="gana"><b>Lo que gana tu cliente</b>Equipos nuevos o remotos que empiezan a conocerse cooperando, no en una presentación.</div>
+          </div>
+          <div class="destacado">Mismo juego, un reporte en dos modos, <em>cinco aplicaciones distintas.</em></div>
+          <div>
+            <p class="subtit">Cinco pilares, 20 habilidades</p>
+            <p class="nota" style="margin-bottom:12px">El mapa desde el que se diseña cada workshop: se elige una competencia y la dinámica se arma alrededor de ella.</p>
+            <div class="pilares">
+              <div class="pilar"><h4>Arquitectura de Equipo<span class="en">The Blueprint</span></h4>
+                <div class="chips"><span>Roles y responsabilidades</span><span>Delegación efectiva</span><span>Visión sistémica</span><span>Pensamiento estratégico</span></div></div>
+              <div class="pilar"><h4>Comunicación de Alto Impacto<span class="en">The Bridge</span></h4>
+                <div class="chips"><span>Comunicación asertiva</span><span>Escucha activa</span><span>Feedback en tiempo real</span><span>Gestión de conflictos</span></div></div>
+              <div class="pilar"><h4>Liderazgo y Talento<span class="en">The Driver</span></h4>
+                <div class="chips"><span>Liderazgo situacional</span><span>Gestión de equipos</span><span>Inteligencia emocional</span><span>Accountability</span></div></div>
+              <div class="pilar"><h4>Agilidad y Respuesta<span class="en">The Engine</span></h4>
+                <div class="chips"><span>Decisiones bajo presión</span><span>Resolución de problemas</span><span>Adaptabilidad</span><span>Agilidad de aprendizaje</span></div></div>
+              <div class="pilar"><h4>Excelencia en la Ejecución<span class="en">The Standard</span></h4>
+                <div class="chips"><span>Orientación a resultados</span><span>Atención al detalle</span><span>Gestión de tiempos</span><span>Pensamiento crítico</span></div></div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ······ 03 REPORTE ······ -->
+      <section class="seccion" id="reporte">
+        <div class="wrap">
+        <span class="eyebrow">03 · El reporte</span>
+        <h2>El Reporte de <span class="fire-txt">Procesos de Equipo.</span></h2>
+        <p class="bajada">Cada sesión puede cerrar con un reporte generado con IA a partir de la conversación real del equipo: números primero, interpretación después, siempre con evidencia.</p>
+        <div class="bloque">
+          <div>
+            <p class="subtit">Seis competencias observadas</p>
+            <div class="etiquetas"><span>Liderazgo</span><span>Coordinación y comunicación</span><span>Apoyo al equipo</span><span>Adaptabilidad</span><span>Clima y cohesión</span><span>Reflexión y aprendizaje</span></div>
+          </div>
+          <div class="capas">
+            <div class="capa" style="--c-tapa:linear-gradient(90deg,#FF8C42,#FFB366)"><span class="cnum">Capa 1</span><h3>Los números</h3><p>Participación, turnos de habla y equidad del equipo, computados del transcript.</p></div>
+            <div class="capa" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)"><span class="cnum">Capa 2</span><h3>La interpretación</h3><p>Nivel por competencia y por persona, siempre respaldado con citas textuales de la sesión.</p></div>
+          </div>
+          <div class="destacado">El mismo reporte opera en dos modos: <em>equipo existente</em> (desarrollo y potencial) y <em>selección</em> (candidatos externos, con comparativa y qué validar en entrevista).</div>
+          <div>
+            <p class="subtit">Así se ve</p>
+            <div style="display:flex; flex-direction:column; gap:16px">
+              <div class="screen-frame">
+                <div class="screen-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">Reporte · vista general del equipo</span></div>
+                <img src="assets/reporte-equipo.webp" alt="Vista general del equipo: turnos de habla, equidad, radar y contribuciones destacadas">
+              </div>
+              <div class="screen-frame">
+                <div class="screen-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">Reporte · perfiles individuales</span></div>
+                <img src="assets/reporte-perfiles.webp" alt="Perfiles individuales con nivel por competencia y citas">
+              </div>
+            </div>
+          </div>
+          <div class="acciones">
+            <a class="btn btn-fire" href="reporte-ejemplo-demo.html">Ver un reporte de ejemplo →</a>
+            <a class="btn btn-ghost" href="guia-metodologica-teamcook.pdf">Descargar la guía metodológica (PDF)</a>
+          </div>
+          <div>
+            <p class="subtit">Fundamento teórico y metodológico</p>
+            <div class="grilla g3">
+              <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#FAD69E,#FF8C42)"><h3>Kolb · Aprendizaje experiencial</h3><p>Experiencia concreta, observación, conceptualización y experimentación: el ciclo completo en cada sesión.</p></div>
+              <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#74568F,#A684C7)"><h3>Modelo TeamCook</h3><p>6 competencias de procesos de equipo, basado en investigación sobre efectividad (Woolley et al., Science 2010; Salas, Sims &amp; Burke 2005; CRM). Cada nivel exige evidencia textual del transcript.</p></div>
+              <div class="tarjeta" style="--c-tapa:linear-gradient(90deg,#6BB7FF,#A684C7)"><h3>Octalysis · Yu-kai Chou</h3><p>8 core drives motivacionales. Usado por Google, LEGO, Tesla y Microsoft.</p></div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ······ 04 NEGOCIO ······ -->
+      <section class="seccion" id="negocio">
+        <div class="wrap">
+        <span class="eyebrow">04 · Tu negocio</span>
+        <h2>Tu costo es fijo. Lo que cobrás, <span class="fire-txt">lo definís vos.</span></h2>
+        <p class="bajada">El costo por sesión es de USD 60 con el pack de 10 sesiones. Todo lo que factures por encima de eso es tuyo: honorarios de facilitación, diseño del workshop, el precio que tu mercado acepte.</p>
+        <div class="bloque">
+          <div class="calc">
+            <div class="calc-head"><span class="label"><span class="dot"></span>Simulador en vivo</span><span class="hint">Movés el precio, cambia todo</span></div>
+            <h3>¿Cuánto cobrás por sesión?</h3>
+            <div class="valor">USD <span id="cPrecio">800</span></div>
+            <input type="range" id="cSlider" min="200" max="2000" step="50" value="800" aria-label="Precio por sesión en dólares">
+            <div class="calc-res">
+              <div class="cr"><b>Te queda por sesión</b><span>USD <span id="cQueda">740</span></span></div>
+              <div class="cr"><b>Margen</b><span><span id="cMargen">92,5</span>%</span></div>
+              <div class="cr"><b>Retorno primer año</b><span id="cRetorno">6,3×</span></div>
+            </div>
+            <p class="nota-c">Retorno sobre la inversión inicial de USD 1.099 (certificación USD 499 + pack de 10 sesiones USD 600), facturando 10 sesiones. Los resultados son ilustrativos y dependen del precio y el volumen que cada partner defina: no constituyen una proyección de ingresos ni una garantía de resultado.</p>
+          </div>
+          <div>
+            <p class="subtit">Qué te deja el primer año</p>
+            <p class="nota" style="margin-bottom:12px">USD 499 de certificación (incluye el primer año de membresía; la cuenta nueva suma 5 sesiones y 5 reportes sin cargo, utilizables en los primeros 6 meses) + USD 600 del pack de 10 sesiones.</p>
+            <div style="overflow-x:auto">
+            <div class="tabla-marco">
+            <table>
+              <thead><tr><th>Si cobrás por sesión</th><th>Facturás (10 sesiones)</th><th>Te queda</th><th>Retorno</th></tr></thead>
+              <tbody>
+                <tr><td>USD 500</td><td>5.000</td><td class="dest">3.901</td><td><span class="ret">3,5×</span></td></tr>
+                <tr><td>USD 800</td><td>8.000</td><td class="dest">6.901</td><td><span class="ret">6,3×</span></td></tr>
+                <tr><td>USD 1.200</td><td>12.000</td><td class="dest">10.901</td><td><span class="ret">9,9×</span></td></tr>
+              </tbody>
+            </table>
+            </div>
+            </div>
+          </div>
+          <div class="destacado">El <em>88% o más</em> de lo que facturás es tuyo. Tu primera sesión sin cargo ya paga la certificación.</div>
+          <p class="nota">El reporte funciona igual: lo comprás a USD 15 y lo cobrás como add-on al precio que definas.</p>
+        </div>
+        </div>
+      </section>
+
+      <!-- ······ 05 CERTIFICACIÓN ······ -->
+      <section class="seccion" id="certificacion">
+        <div class="wrap">
+        <span class="eyebrow">05 · La certificación</span>
+        <h2>El programa <span class="fire-txt">y la inversión.</span></h2>
+        <p class="bajada">La certificación es <strong>individual: se paga por facilitador certificado</strong>. Te habilita como facilitador TeamCook y te da la base metodológica para vender y facilitar las cinco aplicaciones.</p>
+        <div class="bloque">
+          <div class="etiquetas"><span>5 módulos</span><span>4–6 semanas</span><span>2 sesiones live</span><span>Comunidad privada</span></div>
+          <div>
+            <p class="subtit">El programa</p>
+            <div class="mods">
+              <div class="mod"><span class="mn">1</span><span><b>Fundamentos de facilitación gamificada.</b> Kolb, Octalysis y el modelo TeamCook.</span></div>
+              <div class="mod"><span class="mn">2</span><span><b>La plataforma.</b></span></div>
+              <div class="mod"><span class="mn">3</span><span><b>Diseño de workshops y propuestas.</b></span></div>
+              <div class="mod"><span class="mn">4</span><span><b>Casos en vivo.</b></span></div>
+              <div class="mod"><span class="mn">5</span><span><b>El reporte y la certificación digital.</b></span></div>
+            </div>
+          </div>
+          <div class="precios">
+            <div>
+              <p class="subtit">Certificación · por facilitador</p>
+              <div class="fila"><span>1 facilitador</span><span>USD 499</span></div>
+              <div class="fila"><span>2 o 3 facilitadores en la misma compra, cada uno</span><span>USD 359</span></div>
+              <div class="fila"><span>Más de 3 facilitadores</span><span>Consultanos</span></div>
+            </div>
+            <div>
+              <p class="subtit">Packs de sesiones</p>
+              <div class="fila"><span>1 sesión</span><span>USD 65</span></div>
+              <div class="fila"><span>10 sesiones</span><span>USD 600</span></div>
+              <div class="fila"><span>25 sesiones</span><span>USD 1.375</span></div>
+              <div class="fila"><span>50 sesiones</span><span>USD 2.450</span></div>
+              <div class="fila"><span>Reporte con IA</span><span>USD 15</span></div>
+            </div>
+          </div>
+          <p class="nota">Créditos válidos por 12 meses. El reporte se compra aparte: USD 15 por sesión. Membresía desde el segundo año: USD 250/año o USD 25/mes por facilitador.</p>
+        </div>
+        </div>
+      </section>
+
+      <!-- ······ 06 CONTACTO ······ -->
+      <section class="seccion cierre" id="contacto">
+        <div class="cierre-int">
+          <span class="eyebrow">06 · Próximo paso</span>
+          <h2>Esto no se cuenta. <span class="fire-txt">Se juega.</span></h2>
+          <p class="bajada" style="max-width:52ch">Una llamada de 30 minutos alcanza para ver si TeamCook suma a tu portfolio y con qué aplicación arrancar.</p>
+          <div class="contacto-lineas">
+            <a href="https://calendar.app.google/wJvqgXDQLZH5FBkt8" target="_blank" rel="noopener"><span class="ic">30'</span>Agendá una llamada de 30 minutos</a>
+            <a href="https://wa.me/5491140794823" target="_blank" rel="noopener"><span class="ic">WA</span>WhatsApp +54 9 11 4079-4823</a>
+            <a href="mailto:consultas@teamcookgame.com"><span class="ic">@</span>consultas@teamcookgame.com</a>
+            <a href="https://www.teamcookgame.com" target="_blank" rel="noopener"><span class="ic">www</span>www.teamcookgame.com</a>
+          </div>
+          <img class="cierre-chef" src="assets/chef7.webp" alt="El equipo de chefs de TeamCook">
+        </div>
+      </section>
+
+      <div class="pager-zona"><div class="pager" id="pager"></div></div>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var orden = ["inicio","herramienta","aplicaciones","reporte","negocio","certificacion","contacto"];
+  var titulos = {
+    inicio:"Inicio", herramienta:"01 · La herramienta", aplicaciones:"02 · Las 5 aplicaciones",
+    reporte:"03 · El reporte", negocio:"04 · Tu negocio", certificacion:"05 · La certificación",
+    contacto:"06 · Próximo paso"
+  };
+  var actual = "inicio";
+  var leidas = {};
+  try{
+    var g = localStorage.getItem("tc-propuesta");
+    if(g){ leidas = JSON.parse(g) || {}; }
+  }catch(e){}
+
+  var pager = document.getElementById("pager");
+  var pagerZona = document.querySelector(".pager-zona");
+
+  function marcarNav(){
+    document.querySelectorAll("#indice button, #indiceM button").forEach(function(b){
+      b.classList.toggle("activo", b.dataset.sec === actual);
+      b.classList.toggle("leida", !!leidas[b.dataset.sec] && b.dataset.sec !== actual);
+    });
+  }
+
+  function armarPager(){
+    var i = orden.indexOf(actual);
+    var html = "";
+    if(i > 0){
+      html += '<a href="#'+orden[i-1]+'" data-ir="'+orden[i-1]+'"><span class="rot">Anterior</span><span class="dest">← '+titulos[orden[i-1]]+'</span></a>';
+    }
+    if(i < orden.length - 1){
+      html += '<a href="#'+orden[i+1]+'" class="sig" data-ir="'+orden[i+1]+'"><span class="rot">Siguiente</span><span class="dest">'+titulos[orden[i+1]]+' →</span></a>';
+    }
+    pager.innerHTML = html;
+    pagerZona.style.display = html ? "" : "none";
+    enlazar(pager);
+  }
+
+  function mostrar(id, guardarHash){
+    if(orden.indexOf(id) < 0) id = "inicio";
+    document.getElementById(actual).classList.remove("visible");
+    actual = id;
+    leidas[id] = true;
+    try{ localStorage.setItem("tc-propuesta", JSON.stringify(leidas)); }catch(e){}
+    document.getElementById(id).classList.add("visible");
+    marcarNav();
+    armarPager();
+    if(guardarHash !== false){
+      try{ history.replaceState(null, "", "#" + id); }catch(e){}
+    }
+    window.scrollTo({top:0, behavior:"auto"});
+    var act = document.querySelector("#indiceM button.activo");
+    if(act && act.scrollIntoView){
+      act.scrollIntoView({block:"nearest", inline:"center", behavior:"smooth"});
+    }
+  }
+
+  function enlazar(raiz){
+    raiz.querySelectorAll("[data-ir]").forEach(function(el){
+      el.addEventListener("click", function(ev){
+        ev.preventDefault();
+        mostrar(el.dataset.ir);
+      });
+    });
+  }
+
+  document.querySelectorAll("#indice button, #indiceM button").forEach(function(b){
+    b.addEventListener("click", function(){ mostrar(b.dataset.sec); });
+  });
+  enlazar(document);
+
+  window.addEventListener("hashchange", function(){
+    var h = location.hash.replace("#","");
+    if(h && h !== actual) mostrar(h, false);
+  });
+
+  var inicial = location.hash.replace("#","");
+  if(inicial && orden.indexOf(inicial) >= 0 && inicial !== "inicio"){
+    mostrar(inicial, false);
+  }else{
+    leidas.inicio = true;
+    marcarNav();
+    armarPager();
+  }
+
+  var slider = document.getElementById("cSlider");
+  function fmt(n){ return n.toLocaleString("es-AR"); }
+  function calc(){
+    var p = parseInt(slider.value, 10);
+    var queda = p - 60;
+    var margen = (queda / p) * 100;
+    var ret = (p * 10 - 1099) / 1099;
+    document.getElementById("cPrecio").textContent = fmt(p);
+    document.getElementById("cQueda").textContent = fmt(queda);
+    document.getElementById("cMargen").textContent = margen.toLocaleString("es-AR",{minimumFractionDigits:1,maximumFractionDigits:1});
+    document.getElementById("cRetorno").textContent = ret.toLocaleString("es-AR",{minimumFractionDigits:1,maximumFractionDigits:1}) + "×";
+  }
+  slider.addEventListener("input", calc);
+  calc();
+})();
+</script>
+<dialog class="legal" id="dlgLegal" aria-labelledby="ttlLegal">
+  <div class="cab">
+    <h3 id="ttlLegal">Notas y aclaraciones</h3>
+    <button type="button" class="cerrar" id="cerrarLegal" aria-label="Cerrar">&times;</button>
+  </div>
+  <div class="cuerpo">
+    <p><b>Alcance del reporte.</b> El Reporte de Procesos de Equipo describe comportamientos observados durante una sesión y los respalda con citas textuales del transcript. Es un insumo de apoyo para la conversación y la decisión humana: no predice desempeño futuro, no mide personalidad, intereses ni encaje cultural, y no constituye por sí solo fundamento suficiente para decidir sobre la contratación, promoción o continuidad de una persona. Cuando se utilice en procesos de selección, el partner es responsable de informarlo a su cliente y a los participantes, y de cumplir la normativa laboral, de protección de datos y de no discriminación aplicable en su jurisdicción.</p>
+    <p><b>Resultados y proyecciones.</b> Las cifras de costo, margen, facturación y retorno —incluidas las del simulador— son ejemplos ilustrativos construidos sobre supuestos de precio y volumen definidos por TeamCook a título demostrativo. No constituyen una proyección de ingresos, una oferta ni una garantía de resultado. Los resultados de cada partner dependen de su propio precio de venta, de su cartera de clientes, de su esfuerzo comercial y de condiciones de mercado ajenas a TeamCook, y pueden diferir sustancialmente de los ejemplos mostrados. TeamCook no garantiza volumen de ventas, cantidad de clientes ni nivel de ingresos alguno.</p>
+    <p><b>Métricas, testimonios y marcas.</b> Las métricas de uso corresponden a sesiones realizadas con TeamCook y provienen de encuestas respondidas voluntariamente por los participantes al finalizar cada sesión; se informan de forma agregada y no han sido auditadas por un tercero independiente. Los testimonios son opiniones individuales y no representan necesariamente la experiencia de todos los participantes. Los nombres y marcas de organizaciones que figuran en esta página corresponden a entidades que han utilizado TeamCook y se citan únicamente como referencia de uso: no implican patrocinio, recomendación, endoso ni vínculo comercial vigente. Todas las marcas pertenecen a sus respectivos titulares.</p>
+    <p><b>Datos personales.</b> Las sesiones generan transcripciones de la conversación entre los participantes, que se procesan con asistencia de inteligencia artificial para elaborar el reporte. El cliente final es responsable del tratamiento de esos datos frente a sus colaboradores y debe informarles previamente sobre el registro de la sesión, su finalidad y su alcance. Los reportes de ejemplo exhibidos en esta página son demostrativos y no contienen datos reales de clientes.</p>
+    <p><b>Precios y condiciones.</b> Los precios se expresan en dólares estadounidenses (USD) y no incluyen impuestos, retenciones ni comisiones bancarias. Sus modificaciones se comunican con treinta (30) días de preaviso y no afectan los créditos ya adquiridos ni las membresías en curso. El reporte se entrega habitualmente dentro de los quince (15) minutos de finalizada la sesión; el compromiso de servicio es su entrega dentro de las cuarenta y ocho (48) horas hábiles. Las condiciones aplicables son las del Acuerdo de Partner Comercial vigente al momento de la contratación, que prevalece sobre esta página ante cualquier discrepancia. Esta página tiene carácter informativo y no constituye una oferta vinculante.</p>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  var d=document.getElementById("dlgLegal"), a=document.getElementById("abrirLegal"), c=document.getElementById("cerrarLegal");
+  if(!d||!a) return;
+  a.addEventListener("click",function(){ d.showModal ? d.showModal() : d.setAttribute("open",""); });
+  c.addEventListener("click",function(){ d.close ? d.close() : d.removeAttribute("open"); });
+  d.addEventListener("click",function(e){ if(e.target===d) d.close(); });
+})();
+</script>
+</body>
+</html>
